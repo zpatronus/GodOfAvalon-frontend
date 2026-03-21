@@ -31,8 +31,7 @@
 </head>
 
 <body>
-
-    <div class="pumpkin"></div>
+    <div class="pumpkin" style="display: none;"></div>
     <noscript>
         <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled.
                 Please enable it to continue.</strong>
@@ -65,53 +64,60 @@
 </style>
 
 <script>
-    let firstMove = true;
-    document.addEventListener("DOMContentLoaded", function () {
+    let isPumpkinEnabled = false;
+    if (isPumpkinEnabled) {
+        // remove display none
+        document.querySelector('.pumpkin').style.display = 'block';
+        let firstMove = true;
+        document.addEventListener("DOMContentLoaded", function () {
 
-        function adjustPumpkinSize () {
-            const pumpkin = document.querySelector('.pumpkin');
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
+            function adjustPumpkinSize () {
+                const pumpkin = document.querySelector('.pumpkin');
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
 
-            // Ensure both dimensions are set to at least 1.5x the screen size
-            const pumpkinWidth = Math.max(viewportWidth * 1.5, viewportHeight * 1.5);
-            const pumpkinHeight = pumpkinWidth;
+                // Ensure both dimensions are set to at least 1.5x the screen size
+                const pumpkinWidth = Math.max(viewportWidth * 1.5, viewportHeight * 1.5);
+                const pumpkinHeight = pumpkinWidth;
 
-            pumpkin.style.width = `${pumpkinWidth}px`;
-            pumpkin.style.height = `${pumpkinHeight}px`;
-        }
-
-        function setNewDestination () {
-            const pumpkin = document.querySelector('.pumpkin');
-            const viewportWidth = window.innerWidth;
-            const viewportHeight = window.innerHeight;
-            const pumpkinWidth = Math.max(viewportWidth * 1.5, viewportHeight * 1.5);
-            const pumpkinHeight = pumpkinWidth;
-
-            const centerX = (viewportWidth - pumpkinWidth) / 2;
-            const centerY = (viewportHeight - pumpkinHeight) / 2;
-
-            const movementRangeX = pumpkinWidth * 0.2;
-            const movementRangeY = pumpkinHeight * 0.2;
-
-            const randomOffsetX = (Math.random() - 0.5) * 2 * movementRangeX;
-            const randomOffsetY = (Math.random() - 0.5) * 2 * movementRangeY;
-
-            pumpkin.style.transform = `translate(${centerX + randomOffsetX}px, ${centerY + randomOffsetY}px)`;
-            if (!firstMove) {
-                pumpkin.classList.add('orange');
-                setTimeout(() => pumpkin.classList.remove('orange'), 100);
-            } else {
-                firstMove = false;
+                pumpkin.style.width = `${pumpkinWidth}px`;
+                pumpkin.style.height = `${pumpkinHeight}px`;
             }
-        }
+
+            function setNewDestination () {
+                const pumpkin = document.querySelector('.pumpkin');
+                const viewportWidth = window.innerWidth;
+                const viewportHeight = window.innerHeight;
+                const pumpkinWidth = Math.max(viewportWidth * 1.5, viewportHeight * 1.5);
+                const pumpkinHeight = pumpkinWidth;
+
+                const centerX = (viewportWidth - pumpkinWidth) / 2;
+                const centerY = (viewportHeight - pumpkinHeight) / 2;
+
+                const movementRangeX = pumpkinWidth * 0.2;
+                const movementRangeY = pumpkinHeight * 0.2;
+
+                const randomOffsetX = (Math.random() - 0.5) * 2 * movementRangeX;
+                const randomOffsetY = (Math.random() - 0.5) * 2 * movementRangeY;
+
+                pumpkin.style.transform = `translate(${centerX + randomOffsetX}px, ${centerY + randomOffsetY}px)`;
+                if (!firstMove) {
+                    pumpkin.classList.add('orange');
+                    setTimeout(() => pumpkin.classList.remove('orange'), 100);
+                } else {
+                    firstMove = false;
+                }
+            }
 
 
-        adjustPumpkinSize();
-        window.addEventListener('resize', adjustPumpkinSize);
+            adjustPumpkinSize();
+            window.addEventListener('resize', adjustPumpkinSize);
 
-        setInterval(setNewDestination, 30000);
+            setInterval(setNewDestination, 30000);
 
-        setNewDestination()
-    });
+            setNewDestination()
+        });
+    } else {
+        document.querySelector('.pumpkin').style.display = 'none';
+    }
 </script>

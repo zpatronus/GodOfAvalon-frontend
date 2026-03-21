@@ -44,16 +44,16 @@
         href="https://github.com/zpatronus/GodOfAvalon-frontend">前端</a>，<a
         href="https://github.com/zpatronus/GodOfAvalon-backend">后端</a>）；如果你不熟悉github，或者只是想留个言，也可以填写
       <a href="https://forms.gle/g6kHoRVJ7qCBM5598">Google Form</a>。
-      <hr>
-      <b>支持这个网站：</b>
-      <a href="https://www.paypal.com/paypalme/zijunhz/0.7USD">我的PayPal</a>
-      <br>
-      God of
-      Avalon是我在大二时苦于找不到合适的线上阿瓦隆平台、顺便练手Vue+Django的小项目。后续一直陆陆续续更新功能并上线公网。小服务器和域名每年成本大约60USD，并不高。如果能得到您的支持，我会非常感激，默认金额仅0.7USD，谢谢！
     </div>
     <br>
     <div class="container">
       <div class="subtitle">更新日志</div>
+
+
+      <p><strong>2026年3月21日：</strong></p>
+      <ol>
+        <li>前端性能优化。</li>
+      </ol>
 
       <p><strong>2025年1月13日：</strong></p>
       <ol>
