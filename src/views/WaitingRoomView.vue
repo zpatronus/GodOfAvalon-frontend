@@ -31,7 +31,7 @@
     </div>
     <div class="container">
       <div class="subtitle">板子</div>
-      <div>{{ template }}</div>
+      <div v-html="template"></div>
       <div class="subtitle">任务队伍成员数量</div>
       <div>{{ teamBuildingPhase }}</div>
     </div>
@@ -65,12 +65,12 @@ export default {
         '',
         '',
         '',
-        '梅林🧙‍♂️、派西维尔🛡️、莫甘娜😈、刺客🔪、1名亚瑟的忠臣🙌',
-        '梅林🧙‍♂️、派西维尔🛡️、莫甘娜😈、刺客🔪、2名亚瑟的忠臣🙌',
-        '梅林🧙‍♂️、派西维尔🛡️、莫甘娜😈、刺客🔪、奥伯伦👻、2名亚瑟的忠臣🙌',
-        '梅林🧙‍♂️、派西维尔🛡️、莫德雷德👹、莫甘娜😈、刺客🔪、3名亚瑟的忠臣🙌（建议使用湖中仙女）',
-        '梅林🧙‍♂️、派西维尔🛡️、莫德雷德👹、莫甘娜😈、刺客🔪、4名亚瑟的忠臣🙌（建议使用湖中仙女）',
-        '梅林🧙‍♂️、派西维尔🛡️、莫德雷德👹、莫甘娜😈、刺客🔪、4名亚瑟的忠臣🙌、莫德雷德的爪牙💀（建议使用湖中仙女）'
+        '🟦：梅林🧙‍♂️、派西维尔🛡️、亚瑟的忠臣🙌<br>🟧：莫甘娜😈、刺客🔪',
+        '🟦：梅林🧙‍♂️、派西维尔、2×亚瑟的忠臣🙌🛡️<br>🟧：莫甘娜😈、刺客🔪',
+        '🟦：梅林🧙‍♂️、派西维尔🛡️、2×亚瑟的忠臣🙌<br>🟧：莫甘娜😈、刺客🔪、奥伯伦👻',
+        '🟦：梅林🧙‍♂️、派西维尔🛡️、3×亚瑟的忠臣🙌<br>🟧：莫德雷德👹、莫甘娜😈、刺客🔪（建议使用湖中仙女）',
+        '🟦：梅林🧙‍♂️、派西维尔、4×亚瑟的忠臣🙌🛡️<br>🟧：莫德雷德👹、莫甘娜😈、刺客🔪<br>（建议使用湖中仙女）',
+        '🟦：梅林🧙‍♂️、派西维尔🛡️、4×亚瑟的忠臣🙌<br>🟧：莫德雷德👹、莫甘娜😈、刺客🔪、莫德雷德的爪牙💀<br>（建议使用湖中仙女）'
       ];
       // let templates = ['', '', '', '', '', 'Merlin, Percival, Morgana, Assassin, 1 Loyal Servant of Arther', 'Merlin, Percival, Morgana, Assassin, 2 Loyal Servants of Arther', 'Merlin, Percival, Morgana, Assassin, Oberon, 2 Loyal Servants of Arther', 'Merlin, Percival, Mordred, Morgana, Assassin, 3 Loyal Servants of Arther (Lady of the Lake is recommended)', 'Merlin, Percival, Mordred, Morgana, Assassin, 4 Loyal Servants of Arther  (Lady of the Lake is recommended)', 'Merlin, Percival, Mordred, Morgana, Assassin, 4 Loyal Servants of Arther, Minion of Mordred (Lady of the Lake is recommended)']
       //                                    5                                                                 6                                                                  7                                                                            8                                                                                                                       9                                                                                                     10 
