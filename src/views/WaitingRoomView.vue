@@ -35,7 +35,7 @@
       <div class="subtitle">任务队伍成员数量</div>
       <div>{{ teamBuildingPhase }}</div>
     </div>
-    <div>请等待玩家到齐后开始游戏</div><br>
+    <div style="font-weight:bolder; color:orange">请等待玩家到齐后再开始游戏</div><br>
     <button id="startGameButton" v-on:click="startGame" class="disabledButton">开始游戏</button>
     <div>{{ info }}</div>
   </div>
@@ -123,12 +123,24 @@ export default {
           }
           //console.log(this.users)
 
-          let startRoomButton = document.getElementById('startGameButton')
-          if (this.userCount < 5 || this.userCount > 10) {
-            startRoomButton.classList.add('disabledButton')
-          } else {
-            startRoomButton.classList.remove('disabledButton')
-          }
+          let attempts = 0
+          let maxAttempts = 30
+          let intervalId = setInterval(() => {
+            let startRoomButton = document.getElementById('startGameButton')
+            if (startRoomButton) {
+              clearInterval(intervalId)
+              if (this.userCount < 5 || this.userCount > 10) {
+                startRoomButton.classList.add('disabledButton')
+              } else {
+                startRoomButton.classList.remove('disabledButton')
+              }
+            } else {
+              attempts++
+              if (attempts >= maxAttempts) {
+                clearInterval(intervalId)
+              }
+            }
+          }, 10)
 
           if (response.data['roomstatus'] == 'started') {
             this.info = '游戏已开启，跳转中...'
