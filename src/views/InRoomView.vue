@@ -52,8 +52,7 @@
             <hr style="margin: -2px 0 7px 0">
             <div class="subsubtitle">{{ message.messagetitle }}</div>
             <div>{{ message.messageusers }}</div>
-            <div class="green">{{ message.message1users }}</div>
-            <div class="red">{{ message.message2users }}</div>
+            <div><span class="green">{{ message.message1users }}</span> <span style="color: white;">|</span> <span class="red">{{ message.message2users }}</span></div>
           </div>
         </div>
       </div>
