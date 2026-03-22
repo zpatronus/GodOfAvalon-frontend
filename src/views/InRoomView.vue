@@ -381,11 +381,24 @@ export default {
           }
           //deal with no button
           let ul = this.userRole
-          if ((ul === 'Morgana' || ul === 'Assassin' || ul === 'Mordred' || ul === 'Oberon' || ul === 'Minion of Mordred') || re['roomfurtherstatus'] === 'build') {
-            document.getElementById('nobutton').classList.remove('disabledButton')
-          } else {
-            document.getElementById('nobutton').classList.add('disabledButton')
-          }
+          let attempts = 0
+          let maxAttempts = 30 // 30 * 10ms = 300ms
+          let intervalId = setInterval(() => {
+            let nobutton = document.getElementById('nobutton')
+            if (nobutton) {
+              clearInterval(intervalId)
+              if ((ul === 'Morgana' || ul === 'Assassin' || ul === 'Mordred' || ul === 'Oberon' || ul === 'Minion of Mordred') || re['roomfurtherstatus'] === 'build') {
+                nobutton.classList.remove('disabledButton')
+              } else {
+                nobutton.classList.add('disabledButton')
+              }
+            } else {
+              attempts++
+              if (attempts >= maxAttempts) {
+                clearInterval(intervalId)
+              }
+            }
+          }, 10)
           this.updatecontainers()
         })
     },
