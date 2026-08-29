@@ -21,16 +21,13 @@
   <div>
     <div class="container">
       <div class="subtitle">对局信息</div>
-      <div>房间ID: {{ roomId }}</div>
-      <div>你的玩家ID: {{ userId }}</div>
-      <div>玩家数量: {{ userCount }}</div>
-      <!--
-    <div class="subtitle">房间内的玩家</div>
-    <div v-for="user in users">{{ user.userId }}</div>
-  -->
+      <div class="info-grid">
+        <div class="info-row"><span class="info-label">房间ID</span><span class="info-value">{{ roomId }}</span></div>
+        <div class="info-row"><span class="info-label">你的玩家ID</span><span class="info-value">{{ userId }}</span></div>
+        <div class="info-row"><span class="info-label">玩家数量</span><span class="info-value">{{ userCount }}</span></div>
+      </div>
       <div class="subtitle">板子</div>
-      <div v-html="template"></div>
-
+      <div class="board" v-html="template"></div>
     </div>
 
     <div class="container">
@@ -38,47 +35,51 @@
         <summary>
           <div class="subtitle">{{ summaryText }}</div>
         </summary>
-        <div>{{ chineseRoleName }}</div>
-        <div class="subtitle">{{ roleUserSee }}</div>
-        <div>{{ userSeeString }}</div>
+        <div class="role-name">{{ chineseRoleName }}</div>
+        <div v-if="roleUserSee" class="subtitle">{{ roleUserSee }}</div>
+        <div class="role-see">{{ userSeeString }}</div>
       </details>
     </div>
 
-    <div class="container" style="padding:0" v-if="messages.length > 0">
+    <div class="container history-card" style="padding:0" v-if="messages.length > 0">
       <div class="subtitle">历史记录</div>
-      <div v-for="message in messages">
-        <div :style="getBackgroundStyle(message)">
-          <div style="padding:0 7px 0 7px; line-height: 1.2rem">
-            <hr style="margin: -2px 0 7px 0">
+      <div v-for="(message, index) in messages" :key="index">
+        <div :style="getBackgroundStyle(message)" class="history-message">
+          <div class="history-inner">
             <div class="subsubtitle">{{ message.messagetitle }}</div>
-            <div>{{ message.messageusers }}</div>
-            <div><span class="green">{{ message.message1users }}</span> <span style="color: white;">|</span> <span class="red">{{ message.message2users }}</span></div>
+            <div class="history-users">{{ message.messageusers }}</div>
+            <div class="history-votes">
+              <span class="green">{{ message.message1users }}</span>
+              <span class="vote-sep">|</span>
+              <span class="red">{{ message.message2users }}</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <div id="votepart" class="hidden container">
+    <div id="votepart" class="container" v-show="showvotecontainer">
       <div class="subtitle">{{ votetitle }}</div>
-      <div>{{ votecontent }}</div>
-      <button v-on:click="chooseYes">✔️</button>
-      <button id="nobutton" class="disabledButton" v-on:click="chooseNo">❌</button>
-      <div id="confirmchoiceinfo" class="hidden">你选择了 "{{ userChoiceEmoji }}"</div>
-      <button id="confirmchoicebutton" class="hidden" v-on:click="confirmChoice">确认</button>
+      <div class="vote-content">{{ votecontent }}</div>
+      <div class="vote-buttons">
+        <button class="vote-btn" :class="{ 'vote-selected': userChoice === 'yes' }" v-on:click="chooseYes">✔️</button>
+        <button id="nobutton" class="vote-btn" :disabled="noButtonDisabled" :class="{ 'vote-selected': userChoice === 'no' }" v-on:click="chooseNo">❌</button>
+      </div>
+      <div v-show="choiceMade" class="choice-info">你选择了 "{{ userChoiceEmoji }}"</div>
+      <button v-show="choiceMade" class="btn-primary" v-on:click="confirmChoice">确认</button>
     </div>
 
-    <div class="container hidden" id="teambuilding">
+    <div class="container" id="teambuilding" v-show="showbuildcontainer">
       <div class="subtitle">任务队伍成员数量</div>
-      <div style="text-align: center;">{{ teamBuildingPhase }}</div>
+      <div class="phase-pills">{{ teamBuildingPhase }}</div>
       <hr>
       <div class="subtitle">组建任务队伍&笔记</div>
 
-      <div v-for="user in users" style="display: flex;">
-
-        <div class="checkbox-wrapper-60" style="margin-right: auto ; ">
+      <div v-for="user in users" :key="user.userId" class="team-row">
+        <div class="checkbox-wrapper-60">
           <input type="checkbox" class="check" :id="user.userId" :value="user.userId" v-model="selectedUsers"
             @change="changeTeamUser" />
-          <label :for="user.userId" style="margin-right: auto; " class="label">
+          <label :for="user.userId" class="label">
             <svg viewBox="0 0 65 65" height="30" width="30">
               <rect x="7" y="7" width="50" height="50" stroke="white" fill="none" />
               <g transform="translate(-15,-970.36222)">
@@ -90,29 +91,23 @@
           </label>
         </div>
 
-        <div style=" font-size: 1.5rem;  line-height: 2rem; margin-bottom: 0.5rem;">
-          <div v-for="emoji in emojis" class="grayscale" style="display: inline; cursor: default;"
-            @click="toggleGrayscale($event)">{{ emoji }}</div>
+        <div class="note-emojis">
+          <span v-for="emoji in emojis" :key="emoji" class="grayscale note-emoji" @click="toggleGrayscale($event)">{{ emoji }}</span>
         </div>
-
-
-
       </div>
 
-      <div>
+      <div class="team-preview">
         你的任务队伍是：
-        <div v-if="selectedUsers.length === 0" style="display: inline;">∅</div>
-        <div v-for="(u, index) in selectedUsers" :key="index" style="display: inline;">
-          {{ u }}<span v-if="index < selectedUsers.length - 1">, </span>
-        </div>
+        <span v-if="selectedUsers.length === 0" class="team-empty">∅</span>
+        <span v-for="(u, index) in selectedUsers" :key="index" class="team-member">{{ u }}<span v-if="index < selectedUsers.length - 1">, </span></span>
       </div>
-      <div v-if="!selectedUsers.includes(userId)">
-        你没有在队伍提名中包含自己，你确定吗？
+      <div v-if="!selectedUsers.includes(userId)" class="warn-note">你没有在队伍提名中包含自己，你确定吗？</div>
+      <div class="team-actions">
+        <button v-on:click="preDoQuestNew" :class="{ disabledButton: selectedUsers.length < 2 }" class="btn-primary">确定任务队伍人选</button>
+        <button v-on:click="doQuestNew" v-if="preQuestDone">发起任务队伍投票</button>
       </div>
-      <button v-on:click="preDoQuestNew" :class="{ disabledButton: selectedUsers.length < 2 }">确定任务队伍人选</button>
-      <button v-on:click="doQuestNew" v-if="preQuestDone">发起任务队伍投票</button>
     </div>
-    <div>{{ info }}</div>
+    <div class="status">{{ info }}</div>
 
 
     <div style="margin-bottom:100px"></div>
@@ -144,6 +139,8 @@ export default {
       votecontent: 'this is vote content',
       userChoice: 'Yes',
       userChoiceEmoji: '✔️',
+      choiceMade: false,
+      noButtonDisabled: true,
       token: '',
       info: '',
       intervalId: null,
@@ -270,16 +267,14 @@ export default {
         })
     },
     chooseYes () {
-      document.getElementById('confirmchoiceinfo').classList.remove('hidden')
-      document.getElementById('confirmchoicebutton').classList.remove('hidden')
       this.userChoice = 'yes'
       this.userChoiceEmoji = '✔️'
+      this.choiceMade = true
     },
     chooseNo () {
-      document.getElementById('confirmchoiceinfo').classList.remove('hidden')
-      document.getElementById('confirmchoicebutton').classList.remove('hidden')
       this.userChoice = 'no'
       this.userChoiceEmoji = '❌'
+      this.choiceMade = true
     },
     confirmChoice () {
       this.info = '提交投票中...'
@@ -288,10 +283,9 @@ export default {
         url: `${this.server}/vote/${this.roomId}/${this.userId}/${this.userPsw}/${this.userChoice}`
       })
         .then((response) => {
-          document.getElementById('confirmchoiceinfo').classList.add('hidden')
-          document.getElementById('confirmchoicebutton').classList.add('hidden')
-          document.getElementById('votepart').classList.add('hidden')
-          document.getElementById('teambuilding').classList.add('hidden')
+          this.choiceMade = false
+          this.showvotecontainer = false
+          this.showbuildcontainer = false
           this.info = ''
         })
     },
@@ -315,33 +309,6 @@ export default {
           this.messages = tempmessage
         })
 
-    },
-
-    /*
-    if (this.ongoingvote) {
-            document.getElementById('teambuilding').classList.add('hidden')
-            if (this.voted) {
-                document.getElementById('votepart').classList.add('hidden')
-            } else {
-                document.getElementById('votepart').classList.remove('hidden')
-            }
-        } else {
-            document.getElementById('teambuilding').classList.remove('hidden')
-            document.getElementById('votepart').classList.add('hidden')
-        }
-    */
-
-    updatecontainers () {
-      if (this.showbuildcontainer) {
-        document.getElementById('teambuilding').classList.remove('hidden')
-      } else {
-        document.getElementById('teambuilding').classList.add('hidden')
-      }
-      if (this.showvotecontainer) {
-        document.getElementById('votepart').classList.remove('hidden')
-      } else {
-        document.getElementById('votepart').classList.add('hidden')
-      }
     },
 
     updateroominfoAndRender () {
@@ -378,27 +345,10 @@ export default {
             }
             this.showvotecontainer = re['onvote'] && (!re['voted'])
           }
-          //deal with no button
-          let ul = this.userRole
-          let attempts = 0
-          let maxAttempts = 30 // 30 * 10ms = 300ms
-          let intervalId = setInterval(() => {
-            let nobutton = document.getElementById('nobutton')
-            if (nobutton) {
-              clearInterval(intervalId)
-              if ((ul === 'Morgana' || ul === 'Assassin' || ul === 'Mordred' || ul === 'Oberon' || ul === 'Minion of Mordred') || re['roomfurtherstatus'] === 'build') {
-                nobutton.classList.remove('disabledButton')
-              } else {
-                nobutton.classList.add('disabledButton')
-              }
-            } else {
-              attempts++
-              if (attempts >= maxAttempts) {
-                clearInterval(intervalId)
-              }
-            }
-          }, 10)
-          this.updatecontainers()
+          // deal with no button (evil roles, or during team build, may vote No)
+          let isEvilRole = this.userRole === 'Morgana' || this.userRole === 'Assassin' ||
+            this.userRole === 'Mordred' || this.userRole === 'Oberon' || this.userRole === 'Minion of Mordred'
+          this.noButtonDisabled = !(isEvilRole || re['roomfurtherstatus'] === 'build')
         })
     },
     gettoken () {
@@ -498,15 +448,165 @@ export default {
 }
 </script>
 <style>
+/* Note-taking: toggling the grayscale class marks a role as "dead" for yourself */
 .grayscale {
   filter: grayscale(100%);
   opacity: 0.2;
 }
-</style>
 
+/* Team selection row */
+.team-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+}
 
+.note-emojis {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  white-space: nowrap;
+}
 
-<style>
+.note-emoji {
+  display: inline-block;
+  cursor: default;
+  margin-left: 3px;
+}
+
+.team-preview {
+  margin: 12px 0 4px;
+  font-size: 0.95rem;
+}
+
+.team-empty {
+  color: var(--text-faint);
+}
+
+.warn-note {
+  margin: 8px 0;
+  color: var(--evil);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.team-actions {
+  text-align: center;
+  margin-top: 8px;
+}
+
+/* Vote panel */
+.vote-content {
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.vote-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 10px 0;
+}
+
+.vote-btn {
+  font-size: 1.6rem;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vote-selected {
+  border-color: var(--accent);
+  background: rgba(224, 182, 76, 0.18);
+  box-shadow: 0 0 0 3px rgba(224, 182, 76, 0.25);
+}
+
+.choice-info {
+  text-align: center;
+  color: var(--text-dim);
+  margin: 6px 0;
+}
+
+/* History / quest result bars */
+.history-card {
+  overflow: hidden;
+}
+
+.history-card > .subtitle {
+  padding: 14px 16px 6px;
+  margin-bottom: 0;
+}
+
+.history-message {
+  border-radius: 6px;
+}
+
+.history-inner {
+  padding: 4px 14px 10px;
+  line-height: 1.5;
+}
+
+.history-users {
+  margin: 2px 0;
+}
+
+.history-votes {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vote-sep {
+  color: var(--text-faint);
+}
+
+/* Role reveal */
+.role-name {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  padding: 4px 0 10px;
+}
+
+.role-see {
+  text-align: center;
+  color: var(--text-dim);
+  padding-bottom: 4px;
+}
+
+details {
+  width: 100%;
+}
+
+details summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+details summary::-webkit-details-marker {
+  display: none;
+}
+
+details summary::after {
+  content: "▾";
+  color: var(--text-faint);
+  transition: transform 0.2s;
+}
+
+details:not([open]) summary::after {
+  transform: rotate(-90deg);
+}
+
+/* Team-selection checkbox draw animation (kept as-is) */
 .checkbox-wrapper-60 input[type="checkbox"] {
   visibility: hidden;
   display: none;
@@ -524,11 +624,8 @@ export default {
   position: relative;
   display: flex;
   overflow: hidden;
-  margin-bottom: 0.5rem;
-
   box-sizing: border-box;
 }
-
 
 .checkbox-wrapper-60 .check {
   width: 50px;

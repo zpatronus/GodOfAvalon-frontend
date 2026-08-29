@@ -1,18 +1,18 @@
 <!--
  Copyright (C) 2022 Zijun Yang <zijun.yang@outlook.com>
- 
+
  This file is part of God of Avalon Frontend.
- 
+
  God of Avalon Frontend is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
  the Free Software Foundation, either version 3 of the License, or
  (at your option) any later version.
- 
+
  God of Avalon Frontend is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  GNU General Public License for more details.
- 
+
  You should have received a copy of the GNU General Public License
  along with God of Avalon Frontend.  If not, see <http://www.gnu.org/licenses/>.
 -->
@@ -21,23 +21,17 @@
   <div id="app">
 
     <h1 style="display: none;">God of Avalon | Play Avalon Online! | 线上阿瓦隆 | 阿瓦隆发牌助手</h1>
-    <div class="title">God of Avalon</div>
-    <br />
-    <div class="links">
-      <router-link class="link" style="border-left: 1px solid rgba(255, 255, 255, 1); " to="/">主页</router-link>
-      <router-link class="link"
-        style="border-left: 1px solid rgba(255, 255, 255, 1); border-right: 1px solid rgba(255, 255, 255, 1);"
-        to="/createroom">创建房间</router-link>
-      <router-link class="link" style="border-right: 1px solid rgba(255, 255, 255, 1); "
-        to="/joinroom">加入房间</router-link>
-    </div>
-    <hr id="theOnlyHr">
-    <!--
-        <router-link to="/waitingroom">Waiting Room|</router-link>
-        <router-link to="/inroom">In Room</router-link>
-        -->
+    <header class="masthead">
+      <div class="title">God of Avalon</div>
+      <div class="tagline">线上阿瓦隆 · 阿瓦隆发牌助手</div>
+    </header>
 
-    <br />
+    <nav class="nav">
+      <router-link class="nav-link" to="/">主页</router-link>
+      <router-link class="nav-link" to="/createroom">创建房间</router-link>
+      <router-link class="nav-link" to="/joinroom">加入房间</router-link>
+    </nav>
+
     <router-view />
     <div class="visitor-count">
       Visitors: {{ visitorCount }}
@@ -56,17 +50,6 @@ export default {
   },
   mounted () {
     this.fetchVisitorCount();
-
-    setInterval(() => {
-      const gotItButton = Array.from(
-        document.querySelectorAll('md-text-button')
-      ).find(button => button.textContent.includes('Got it'));
-
-      if (gotItButton) {
-        gotItButton.click();
-      }
-    }, 100);
-
   },
   methods: {
     async fetchVisitorCount () {
@@ -84,14 +67,124 @@ export default {
 
 
 <style lang="scss">
+:root {
+  --bg-0: #0e131a;
+  --bg-1: #161d26;
+  --surface: rgba(23, 30, 40, 0.82);
+  --surface-2: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text: #e7ecf3;
+  --text-dim: #aeb9c6;
+  --text-faint: #7d8a99;
+  --accent: #e0b64c;
+  --accent-hover: #f2cc6b;
+  --accent-ink: #1c1405;
+  --good: #3db4f0;
+  --evil: #ff8b45;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+}
+
 * {
-  color: rgba(255, 255, 255, 1);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(60% 38% at 50% 0%, rgba(224, 182, 76, 0.07), transparent 70%),
+    linear-gradient(180deg, var(--bg-0), var(--bg-1));
+  background-attachment: fixed;
+  background-repeat: no-repeat;
 }
 
 #app {
   max-width: 420px;
   margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+/* ---------- Masthead + nav ---------- */
+
+.masthead {
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  background: linear-gradient(180deg, #f7e2a0, var(--accent));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--accent);
+}
+
+.tagline {
+  margin: 6px 0 0;
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  letter-spacing: 2px;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto 20px;
+  padding: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: var(--text-dim);
+  font-weight: 600;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: color 0.2s, background 0.2s;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.nav-link.router-link-exact-active {
+  color: var(--accent-ink);
+  background: var(--accent);
+}
+
+/* ---------- Cards ---------- */
+
+.container {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin: 12px auto;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
 }
 
 .centerContainer {
@@ -100,234 +193,280 @@ export default {
   flex-direction: column;
 }
 
-hr {
-  border: none;
-  border-top: 1px dashed #888;
-  color: #fff;
-  overflow: visible;
-  text-align: center;
-  height: 0px;
-}
-
-#theOnlyHr {
-  margin: 10px 0 -19px 0;
-}
-
-body {
-  --bg-size: clamp(150px, 10vw, 300px);
-  --bg-offset: calc(var(--bg-size) / -2);
-
-  margin: 0;
-  padding: 0;
-  background:
-    linear-gradient(rgb(21, 30, 36), rgb(21, 30, 36)),
-    linear-gradient(155deg, rgba(255, 255, 255, 0.02) 25%, transparent 10%) var(--bg-offset) 0,
-    linear-gradient(245deg, rgba(255, 255, 255, 0.02) 25%, transparent 10%) var(--bg-offset) 0,
-    linear-gradient(335deg, rgba(255, 255, 255, 0.02) 25%, transparent 10%),
-    linear-gradient(65deg, rgba(255, 255, 255, 0.02) 25%, transparent 10%);
-  background-blend-mode: overlay;
-  background-repeat: repeat;
-  background-attachment: fixed;
-  background-size: var(--bg-size) var(--bg-size);
-}
-
-
-
-input {
-  background: rgba(255, 255, 255, 0.1);
-  font-size: large;
-  outline: none;
-  padding: 10px 15px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 5px;
-  margin-top: 10px;
-  transition: all 0.3s ease-in-out;
-  max-width: 150px;
-  color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-input:focus {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-}
-
-
-button {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 5px;
-  padding: 10px 20px;
-  margin: 10px 5px;
-  color: #fff;
-  font-size: normal;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
-}
-
-button:hover {
-  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
-}
-
-button:active {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.7);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.title {
-  font-size: xx-large;
-  font-weight: bolder;
-  margin: 1rem auto 0rem auto;
-  text-align: center;
-}
-
 .subtitle {
-  margin-top: 0.7rem;
-  margin-bottom: 0.5rem;
-  font-size: large;
-  // font-style: italic;
-  font-weight: bold;
+  margin: 14px 0 8px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent);
   text-align: center;
-  // text-decoration: underline;
 }
 
-.disabledButton {
-  pointer-events: none;
-  text-decoration: line-through;
+.subtitle:first-child {
+  margin-top: 0;
 }
 
 .subsubtitle {
   font-style: italic;
+  font-weight: 600;
+  color: var(--text-dim);
 }
 
+/* ---------- Typography helpers ---------- */
+
 .green {
-  color: rgb(0, 160, 224);
+  color: var(--good);
 }
 
 .red {
-  color: rgb(224, 118, 0);
+  color: var(--evil);
 }
 
 .hidden {
   display: none;
 }
 
-#app {
-  padding-left: 7px;
-  padding-right: 7px;
-  padding-top: 7px;
+a {
+  color: var(--accent);
 }
 
-.links {
-  margin: 0 auto 20px auto;
+/* ---------- Form controls ---------- */
+
+input {
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 1rem;
+  outline: none;
+  padding: 11px 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  margin: 0;
+  width: min(220px, 100%);
+  color: var(--text);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(224, 182, 76, 0.22);
+}
+
+input::placeholder {
+  color: var(--text-faint);
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.field-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 220px;
+}
+
+.status {
+  min-height: 1.3em;
+  margin-top: 10px;
+  color: var(--text-dim);
+  font-size: 0.9rem;
   text-align: center;
-  padding: 0;
-  width: fit-content;
 }
 
-
-
-.link {
-  text-decoration: none;
-  padding: 10px 10px 8px 10px;
-  margin: 0px 0px;
-  border-radius: 0px;
-  background: rgba(255, 255, 255, 0.02);
-  transition: background 0.3s, color 0.3s; // Smooth transition effects
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  &:active {
-    background: rgba(255, 255, 255, 0.2);
-  }
+button {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06));
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px 18px;
+  margin: 8px 4px;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: background 0.2s, border-color 0.2s, transform 0.05s;
 }
 
-.link.router-link-exact-active {
-  background: rgba(255, 255, 255, 0.2);
+button:hover {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.1));
 }
 
-md-dialog {
-  color: black;
+button:active {
+  transform: translateY(1px);
 }
 
-.container {
-  border: 1px solid rgba(255, 255, 255, 1);
-  padding: 0 7px 7px 7px;
-  border-radius: 2px;
-  margin: 10px auto;
+button:disabled {
+  opacity: 0.45;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, var(--accent-hover), var(--accent));
+  border-color: rgba(224, 182, 76, 0.6);
+  color: var(--accent-ink);
+  font-weight: 700;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(180deg, #ffe3a0, var(--accent-hover));
+  border-color: var(--accent);
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+}
+
+.disabledButton {
+  opacity: 0.45;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ---------- Shared layout helpers ---------- */
+
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.info-label {
+  color: var(--text-dim);
+}
+
+.info-value {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.chip {
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.board {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  line-height: 1.9;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.phase-pills {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--accent);
+}
+
+.waiting-note {
+  text-align: center;
+  font-weight: 700;
+  color: var(--evil);
+  margin: 14px 0 4px;
+}
+
+.notice {
+  color: var(--text-dim);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.notice a {
+  color: var(--accent);
+}
+
+.tips {
+  text-align: left;
+  margin: 10px 0;
+  padding: 0 4px 0 22px;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+
+.tips li {
+  margin: 5px 0;
+}
+
+.visitor-count {
+  text-align: center;
+  color: var(--text-faint);
+  font-size: 0.8rem;
+  margin-top: 32px;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 12px 0;
 }
 </style>
 
 
 <style>
-/* Insert the custom scrollbar CSS here */
+/* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
-  /* Width of the scrollbar */
   height: 8px;
-  /* Height for horizontal scrollbar */
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(21, 30, 36, 1);
-  /* Match the site's dark background */
+  background: var(--bg-0);
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(100, 100, 100, 0.7);
-  /* Dark grey color for the thumb */
+  background-color: rgba(255, 255, 255, 0.18);
   border-radius: 10px;
-  /* Rounded corners on the thumb */
-  border: 2px solid rgba(21, 30, 36, 1);
-  /* Border to blend into the dark background */
+  border: 2px solid var(--bg-0);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(150, 150, 150, 0.9);
-  /* Lighter grey color when hovering */
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 /* For Firefox */
 body {
   scrollbar-width: thin;
-  /* Thin scrollbar width */
-  scrollbar-color: rgba(100, 100, 100, 0.7) rgba(21, 30, 36, 1);
-  /* Dark thumb color and dark background */
-}
-
-/* Custom element to show scrollbar styling */
-.element-with-scrollbar {
-  overflow-y: auto;
-  /* Enable vertical scrolling */
-  max-height: 200px;
-  /* Limit height for the example */
-  background-color: rgba(21, 30, 36, 1);
-  /* Matching dark background */
-  color: white;
-  /* Light text for contrast */
-  padding: 10px;
-  /* Padding for content */
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  /* Optional border for visual separation */
-}
-
-/* Optional: Hiding the scrollbar entirely but keep functionality */
-.element-with-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-
-.element-with-scrollbar {
-  -ms-overflow-style: none;
-  /* IE and Edge */
-  scrollbar-width: none;
-  /* Firefox */
+  scrollbar-color: rgba(255, 255, 255, 0.18) var(--bg-0);
 }
 </style>

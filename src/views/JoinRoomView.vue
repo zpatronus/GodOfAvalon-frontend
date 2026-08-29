@@ -21,21 +21,19 @@
   <div>
     <div class="container centerContainer">
       <div class="subtitle">房间ID</div>
-      <div>
+      <div class="field-row">
         <input v-on:input="checkRoomId" v-model="roomId" type="text" placeholder="房间ID" />
         <button v-on:click="generateNextRoomId">下一个</button>
       </div>
-      <br />
       <div class="subtitle">玩家ID</div>
-        <input v-on:input="checkUserId" v-model="userId" type="text" placeholder="玩家ID" />
-        <!-- <button v-on:click="generateRandomId">随机，无意冒犯，纯属搞笑</button> -->
-      <br />
+      <input v-on:input="checkUserId" v-model="userId" type="text" placeholder="玩家ID" />
+      <!-- <button v-on:click="generateRandomId">随机，无意冒犯，纯属搞笑</button> -->
       <div class="subtitle">玩家密码</div>
-      <div>
+      <div class="field-row">
         <input v-on:input="checkUserPsw" v-model="userPsw" type="text" placeholder="玩家密码" />
         <button v-on:click="generateRandomPsw">随机</button>
       </div>
-      <ul>
+      <ul class="tips">
         <li>
           不要使用你的常用密码，密码会被明文传输
         </li>
@@ -49,10 +47,8 @@
           建议随机输入，网站会将密码保存在本地，刷新后也不会丢失，并会自动填入
         </li>
       </ul>
-      <br />
-      <button v-on:click="joinRoom">加入房间</button>
-      <br />
-      <div>{{ info }}</div>
+      <button class="btn-primary btn-block" v-on:click="joinRoom">加入房间</button>
+      <div class="status">{{ info }}</div>
     </div>
   </div>
 </template>

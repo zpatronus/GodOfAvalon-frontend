@@ -23,14 +23,11 @@
     <button v-on:click="trypost">trypost button</button>
     -->
     <div class="container">
-      <b class="centerContainer">
-        <p style="color: yellow">For English speakers: Apologies, this project started as a practice and was not
+      <p class="notice" style="margin-top: 0;">For English speakers: Apologies, this project started as a practice and was not
           designed with multilingual
           considerations in mind. Please use <a
             href="https://goa-zijuny-dev.translate.goog/?_x_tr_sl=zh-CN&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp">Google
             Translate</a>.</p>
-
-      </b>
       <div class="subtitle">--help</div>
       要使用此网站玩《阿瓦隆：抵抗组织》，首先需要创建一个房间。
       <br><br>

@@ -21,14 +21,12 @@
   <div>
     <div class="container centerContainer">
       <div class="subtitle">房间ID</div>
-      <div>
+      <div class="field-row">
         <input v-on:input="checkRoomId" v-model="roomId" type="text" placeholder="房间ID" />
         <button v-on:click="generateNextRoomId">下一个</button>
       </div>
-      <br />
-      <button v-on:click="createRoom">创建房间</button>
-      <br />
-      <div>{{ info }}</div>
+      <button class="btn-primary btn-block" v-on:click="createRoom">创建房间</button>
+      <div class="status">{{ info }}</div>
     </div>
   </div>
 </template>

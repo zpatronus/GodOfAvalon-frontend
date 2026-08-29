@@ -20,24 +20,25 @@
 <template>
   <div>
     <div class="container">
-      <div class="subtitle">房间ID</div>
-      <div>{{ roomId }}</div>
-      <div class="subtitle">你的玩家ID</div>
-      <div>{{ userId }}</div>
-      <div class="subtitle">玩家数量</div>
-      <div>{{ userCount }}</div>
+      <div class="info-grid">
+        <div class="info-row"><span class="info-label">房间ID</span><span class="info-value">{{ roomId }}</span></div>
+        <div class="info-row"><span class="info-label">你的玩家ID</span><span class="info-value">{{ userId }}</span></div>
+        <div class="info-row"><span class="info-label">玩家数量</span><span class="info-value">{{ userCount }}</span></div>
+      </div>
       <div class="subtitle">房间内的玩家</div>
-      <div v-for="user in users" style="display: inline-block; margin-right: 10px;">{{ user.userId }}</div>
+      <div class="chips">
+        <span v-for="user in users" :key="user.userId" class="chip">{{ user.userId }}</span>
+      </div>
     </div>
     <div class="container">
       <div class="subtitle">板子</div>
-      <div v-html="template"></div>
+      <div class="board" v-html="template"></div>
       <div class="subtitle">任务队伍成员数量</div>
-      <div>{{ teamBuildingPhase }}</div>
+      <div class="phase-pills">{{ teamBuildingPhase }}</div>
     </div>
-    <div style="font-weight:bolder; color:orange">请等待玩家到齐后再开始游戏</div><br>
-    <button id="startGameButton" v-on:click="startGame" class="disabledButton">开始游戏</button>
-    <div>{{ info }}</div>
+    <div class="waiting-note">请等待玩家到齐后再开始游戏</div>
+    <button id="startGameButton" v-on:click="startGame" class="btn-primary btn-block" :disabled="!canStart" :class="{ disabledButton: !canStart }">开始游戏</button>
+    <div class="status">{{ info }}</div>
   </div>
 </template>
 <script>
@@ -56,6 +57,9 @@ export default {
     }
   },
   computed: {
+    canStart: function () {
+      return this.userCount >= 5 && this.userCount <= 10;
+    },
     template: function () {
       if (this.userCount < 5) return '玩家数量不足'
       if (this.userCount > 10) return '玩家数量过多，请重开房间'
@@ -97,6 +101,7 @@ export default {
   },
   methods: {
     startGame () {
+      if (!this.canStart) return
       this.info = '正在开启游戏...'
       axios({
         method: 'get',
@@ -122,25 +127,6 @@ export default {
             this.users.push({ 'userId': response.data['user' + useri] })
           }
           //console.log(this.users)
-
-          let attempts = 0
-          let maxAttempts = 30
-          let intervalId = setInterval(() => {
-            let startRoomButton = document.getElementById('startGameButton')
-            if (startRoomButton) {
-              clearInterval(intervalId)
-              if (this.userCount < 5 || this.userCount > 10) {
-                startRoomButton.classList.add('disabledButton')
-              } else {
-                startRoomButton.classList.remove('disabledButton')
-              }
-            } else {
-              attempts++
-              if (attempts >= maxAttempts) {
-                clearInterval(intervalId)
-              }
-            }
-          }, 10)
 
           if (response.data['roomstatus'] == 'started') {
             this.info = '游戏已开启，跳转中...'
