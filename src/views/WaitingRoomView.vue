@@ -26,15 +26,15 @@
         <div class="info-row"><span class="info-label">玩家数量</span><span class="info-value">{{ userCount }}</span></div>
       </div>
       <div class="subtitle">房间内的玩家</div>
-      <div class="chips">
-        <span v-for="user in users" :key="user.userId" class="chip">{{ user.userId }}</span>
+      <div class="player-list">
+        <span v-for="user in users" :key="user.userId" class="player-chip">{{ user.userId }}</span>
       </div>
     </div>
     <div class="container">
       <div class="subtitle">板子</div>
       <div class="board" v-html="template"></div>
       <div class="subtitle">任务队伍成员数量</div>
-      <div class="phase-pills">{{ teamBuildingPhase }}</div>
+      <div class="phase-text">{{ teamBuildingPhase }}</div>
     </div>
     <div class="waiting-note">请等待玩家到齐后再开始游戏</div>
     <button id="startGameButton" v-on:click="startGame" class="btn-primary btn-block" :disabled="!canStart" :class="{ disabledButton: !canStart }">开始游戏</button>

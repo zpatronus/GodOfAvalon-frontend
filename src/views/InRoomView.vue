@@ -59,19 +59,21 @@
     </div>
 
     <div id="votepart" class="container" v-show="showvotecontainer">
-      <div class="subtitle">{{ votetitle }}</div>
+      <div class="subtitle" v-if="votetitle">{{ votetitle }}</div>
       <div class="vote-content">{{ votecontent }}</div>
       <div class="vote-buttons">
         <button class="vote-btn" :class="{ 'vote-selected': userChoice === 'yes' }" v-on:click="chooseYes">✔️</button>
         <button id="nobutton" class="vote-btn" :disabled="noButtonDisabled" :class="{ 'vote-selected': userChoice === 'no' }" v-on:click="chooseNo">❌</button>
       </div>
-      <div v-show="choiceMade" class="choice-info">你选择了 "{{ userChoiceEmoji }}"</div>
-      <button v-show="choiceMade" class="btn-primary" v-on:click="confirmChoice">确认</button>
+      <div v-show="choiceMade" class="vote-confirm">
+        <div class="choice-info">你的选择：<span class="choice-pill">{{ userChoiceEmoji }}</span></div>
+        <button class="btn-primary btn-block" v-on:click="confirmChoice">确认投票</button>
+      </div>
     </div>
 
     <div class="container" id="teambuilding" v-show="showbuildcontainer">
       <div class="subtitle">任务队伍成员数量</div>
-      <div class="phase-pills">{{ teamBuildingPhase }}</div>
+      <div class="phase-text">{{ teamBuildingPhase }}</div>
       <hr>
       <div class="subtitle">组建任务队伍&笔记</div>
 
@@ -103,8 +105,8 @@
       </div>
       <div v-if="!selectedUsers.includes(userId)" class="warn-note">你没有在队伍提名中包含自己，你确定吗？</div>
       <div class="team-actions">
-        <button v-on:click="preDoQuestNew" :class="{ disabledButton: selectedUsers.length < 2 }" class="btn-primary">确定任务队伍人选</button>
-        <button v-on:click="doQuestNew" v-if="preQuestDone">发起任务队伍投票</button>
+        <button v-on:click="preDoQuestNew" :class="{ disabledButton: selectedUsers.length < 2, 'btn-primary': !preQuestDone }">确定任务队伍人选</button>
+        <button v-on:click="doQuestNew" v-if="preQuestDone" class="btn-primary">发起任务队伍投票</button>
       </div>
     </div>
     <div class="status">{{ info }}</div>
@@ -492,8 +494,15 @@ export default {
 }
 
 .team-actions {
-  text-align: center;
-  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.team-actions button {
+  width: 100%;
+  margin: 0;
 }
 
 /* Vote panel */
@@ -526,10 +535,39 @@ export default {
   box-shadow: 0 0 0 3px rgba(224, 182, 76, 0.25);
 }
 
+.vote-confirm {
+  animation: voteFadeIn 0.2s ease;
+}
+
+.vote-confirm button {
+  margin: 10px 0 0;
+}
+
 .choice-info {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   color: var(--text-dim);
-  margin: 6px 0;
+  margin: 4px 0 0;
+}
+
+.choice-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 42px;
+  height: 42px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(229, 189, 84, 0.14);
+  border: 1px solid rgba(229, 189, 84, 0.4);
+  font-size: 1.3rem;
+}
+
+@keyframes voteFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* History / quest result bars */
@@ -596,6 +634,10 @@ details summary::-webkit-details-marker {
   display: none;
 }
 
+details summary .subtitle {
+  margin-top: 0;
+}
+
 details summary::after {
   content: "▾";
   color: var(--text-faint);
@@ -632,6 +674,12 @@ details:not([open]) summary::after {
   height: 50px;
   position: absolute;
   opacity: 0;
+}
+
+.checkbox-wrapper-60 .label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .checkbox-wrapper-60 .label svg {
