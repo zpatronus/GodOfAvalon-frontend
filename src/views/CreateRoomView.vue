@@ -19,7 +19,7 @@
 
 <template>
   <div>
-    <div class="container centerContainer">
+    <div class="container">
       <div class="subtitle">房间ID</div>
       <div class="field-row">
         <input v-on:input="checkRoomId" v-model="roomId" type="text" placeholder="房间ID" />

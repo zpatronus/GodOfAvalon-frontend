@@ -119,6 +119,17 @@ body {
   padding: 22px 14px 56px;
 }
 
+@media (max-width: 390px) {
+  #app {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .container {
+    padding: 14px 12px;
+  }
+}
+
 /* ---------- Masthead + nav ---------- */
 
 .masthead {
@@ -205,12 +216,6 @@ body {
   pointer-events: none;
 }
 
-.centerContainer {
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-}
-
 .subtitle {
   display: flex;
   align-items: center;
@@ -268,6 +273,8 @@ a {
 /* ---------- Form controls ---------- */
 
 input {
+  -webkit-appearance: none;
+  appearance: none;
   background: rgba(10, 14, 20, 0.55);
   font-size: 1rem;
   outline: none;
@@ -275,7 +282,8 @@ input {
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   margin: 0;
-  width: min(240px, 100%);
+  width: 100%;
+  min-width: 0;
   color: var(--text);
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.4);
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
@@ -295,15 +303,20 @@ input::placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-wrap: nowrap;
   width: 100%;
   gap: 8px;
   margin: 8px 0;
 }
 
 .field-row input {
-  flex: 1 1 auto;
+  flex: 1 1 0%;
   min-width: 0;
-  max-width: 220px;
+  max-width: none;
+}
+
+.field-row button {
+  flex-shrink: 0;
 }
 
 .status {
