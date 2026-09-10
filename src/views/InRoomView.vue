@@ -100,7 +100,7 @@
         <div class="vote-team">
           <span class="vote-label">任务队伍</span>
           <div class="vote-members">
-            <span v-for="member in roomState.members" :key="member" class="vote-person">
+            <span v-for="member in sortedVoteMembers" :key="member" class="vote-person">
               <img class="vote-avatar" :src="avatarOf(member)" :alt="member" />
               <span>{{ member }}</span>
             </span>
@@ -152,7 +152,7 @@
       <div class="team-preview">
         <span class="preview-label">你的任务队伍是：</span>
         <span v-if="selectedUsers.length === 0" class="team-empty">∅</span>
-        <span v-for="(u) in selectedUsers" :key="u" class="team-member" :title="u">
+        <span v-for="u in sortedSelectedUsers" :key="u" class="team-member" :title="u">
           <img class="preview-avatar" :src="avatarOf(u)" :alt="u" />
           <span>{{ u }}</span>
         </span>
@@ -173,6 +173,7 @@
 import { post } from '@/api'
 import { ROLE_DISPLAY, boardTemplate, teamPhase, canReject, renderVote, errorMessage } from '@/gameConfig'
 import { getMyAvatar, avatarUrl } from '@/avatar'
+import { sortPlayers } from '@/playerOrder'
 export default {
   name: 'InRoomView',
   data () {
@@ -202,6 +203,12 @@ export default {
     }
   },
   computed: {
+    sortedVoteMembers () {
+      return sortPlayers(this.roomState.members, this.roomId)
+    },
+    sortedSelectedUsers () {
+      return sortPlayers(this.selectedUsers, this.roomId)
+    },
     template: function () {
       return boardTemplate(this.userCount)
     },
@@ -215,7 +222,7 @@ export default {
       return (ROLE_DISPLAY[this.userRole] || {}).hint || ''
     },
     renderedHistory () {
-      return this.votes.map(renderVote)
+      return this.votes.map(vote => renderVote(vote, this.roomId))
     },
     votetitle () {
       if (this.roomState.phase === 'build') return `队伍提名 #${this.roomState.build_round}`
@@ -320,7 +327,7 @@ export default {
         if (!res.ok) return
         this.userCount = res.users.length
         this.avatars = { ...this.avatars, ...(res.avatars || {}) }
-        this.users = res.users.map(userId => ({ userId }))
+        this.users = sortPlayers(res.users, this.roomId).map(userId => ({ userId }))
       } catch (e) { /* polling */ }
     },
     async loadRole () {
@@ -331,7 +338,7 @@ export default {
         if (!res.ok) return
         this.userRole = res.role
         this.avatars = { ...this.avatars, ...(res.avatars || {}) }
-        this.usersUserSee = res.users.map(userId => ({ userId }))
+        this.usersUserSee = sortPlayers(res.users, this.roomId).map(userId => ({ userId }))
       } catch (e) { /* polling */ }
     },
     async loadHistory () {
@@ -654,7 +661,7 @@ export default {
 }
 
 .history-inner {
-  padding: 3px 14px 8px;
+  padding: 8px 14px 3px;
   line-height: 1.5;
 }
 
@@ -735,11 +742,23 @@ export default {
   gap: 6px;
   padding-top: 2px;
   text-align: right;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
-@media (max-width: 380px) {
+.history-votes > span {
+  min-width: 0;
+}
+
+@media (max-width: 600px) {
+  .history-topline {
+    flex-wrap: wrap;
+  }
+
   .history-bottomline {
     flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
   }
 
   .history-votes {

@@ -46,6 +46,7 @@
 </template>
 <script>
 import { post } from '@/api'
+import { sortPlayers } from '@/playerOrder'
 import { boardTemplate, teamPhase, MIN_PLAYERS, MAX_PLAYERS, errorMessage } from '@/gameConfig'
 import { getMyAvatar, avatarUrl } from '@/avatar'
 export default {
@@ -104,7 +105,7 @@ export default {
         if (!res.ok) return
         this.userCount = res.users.length
         this.avatars = res.avatars || {}
-        this.users = res.users.map(userId => ({ userId }))
+        this.users = sortPlayers(res.users, this.roomId).map(userId => ({ userId }))
         if (res.roomstatus === 'started') {
           this.info = '游戏已开启，跳转中...'
           this.$router.push({ path: '/inroom' })

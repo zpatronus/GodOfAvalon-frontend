@@ -1,6 +1,8 @@
 // Centralized display config for the game, keyed by stable *role codes* coming
 // from the backend. Because the backend stores codes (not display strings), the
 // wording/emoji below can be edited or translated without touching server code.
+import { sortPlayers } from './playerOrder'
+
 export const MIN_PLAYERS = 5
 export const MAX_PLAYERS = 10
 
@@ -86,19 +88,19 @@ export function errorMessage (code, fallback) {
 }
 
 // The "N 赞同：a, b" line for a team-build (approval) vote result.
-function agreeLine (votes) {
-  const agree = votes.filter(v => v.choice).map(v => v.userid)
+function agreeLine (votes, roomId) {
+  const agree = sortPlayers(votes.filter(v => v.choice).map(v => v.userid), roomId)
   return `${agree.length} 赞同${agree.length > 0 ? '：' : ''}${agree.join(', ')}`
 }
 
-function disagreeLine (votes) {
-  const disagree = votes.filter(v => !v.choice).map(v => v.userid)
+function disagreeLine (votes, roomId) {
+  const disagree = sortPlayers(votes.filter(v => !v.choice).map(v => v.userid), roomId)
   return `${disagree.length} 反对${disagree.length > 0 ? '：' : ''}${disagree.join(', ')}`
 }
 
 // Render a structured Vote record the way the history card displays it.
-export function renderVote (vote) {
-  const members = vote.members || []
+export function renderVote (vote, roomId) {
+  const members = sortPlayers(vote.members || [], roomId)
   const team = `队长：${vote.builder} | 队伍：${members.join(', ')}`
   if (vote.kind === 'quest') {
     return {
@@ -121,8 +123,8 @@ export function renderVote (vote) {
     team,
     builder: vote.builder,
     members,
-    agree: agreeLine(ballots),
-    disagree: disagreeLine(ballots),
+    agree: agreeLine(ballots, roomId),
+    disagree: disagreeLine(ballots, roomId),
     agreeCount: vote.agree,
     disagreeCount: vote.disagree
   }
