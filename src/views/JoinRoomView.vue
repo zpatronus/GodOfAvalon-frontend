@@ -368,7 +368,7 @@ export default {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  max-height: 220px;
+  max-height: min(520px, calc(100dvh - 160px));
   overflow-y: auto;
   padding: 4px;
   margin-bottom: 4px;
