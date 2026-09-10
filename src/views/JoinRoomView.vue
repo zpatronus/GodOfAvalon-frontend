@@ -35,22 +35,32 @@
       </div>
       <div class="subtitle avatar-title">选择头像</div>
       <div class="avatar-picker">
-        <div class="avatar-preview-wrap">
+        <button type="button" class="avatar-preview-wrap" aria-label="选择头像" aria-haspopup="dialog" title="点击选择头像" v-on:click="openAvatarPicker">
           <img class="avatar-preview" :src="avatarOfUser(selectedAvatar)" alt="avatar" />
-        </div>
-        <button class="btn-primary" v-on:click="randomizeAvatar">随机头像</button>
+        </button>
+        <button v-on:click="randomizeAvatar">随机头像</button>
       </div>
-      <div class="avatar-grid">
-        <img
+      <dialog ref="avatarDialog" class="avatar-dialog" aria-labelledby="avatar-dialog-title" v-on:click="dismissAvatarBackdrop">
+        <div class="avatar-dialog-header">
+          <h2 id="avatar-dialog-title">选择头像</h2>
+          <button type="button" aria-label="关闭" v-on:click="$refs.avatarDialog.close()">×</button>
+        </div>
+        <div class="avatar-grid">
+        <button
           v-for="file in AVATARS"
           :key="file"
+          type="button"
           class="avatar-thumb"
           :class="{ 'avatar-selected': file === selectedAvatar }"
-          :src="avatarOfUser(file)"
+          :aria-pressed="file === selectedAvatar"
+          :aria-label="file.replace(/\.svg$/, '').replace(/-/g, ' ')"
           :title="file"
-          v-on:click="selectAvatar(file)"
-        />
-      </div>
+          v-on:click="chooseAvatar(file)"
+        >
+          <img :src="avatarOfUser(file)" alt="" />
+        </button>
+        </div>
+      </dialog>
       <ul class="tips">
         <li>
           不要使用你的常用密码，密码会被明文传输
@@ -90,6 +100,25 @@ export default {
     }
   },
   methods: {
+    openAvatarPicker () {
+      const dialog = this.$refs.avatarDialog
+      dialog.showModal()
+      const selected = dialog.querySelector('.avatar-selected')
+      if (selected) selected.focus()
+    },
+    dismissAvatarBackdrop (event) {
+      const dialog = this.$refs.avatarDialog
+      if (event.target !== dialog) return
+      const bounds = dialog.getBoundingClientRect()
+      if (event.clientX < bounds.left || event.clientX > bounds.right ||
+          event.clientY < bounds.top || event.clientY > bounds.bottom) {
+        dialog.close()
+      }
+    },
+    chooseAvatar (file) {
+      this.selectAvatar(file)
+      this.$refs.avatarDialog.close()
+    },
     randomizeAvatar () {
       this.selectAvatar(randomAvatar())
     },
@@ -311,13 +340,16 @@ export default {
 .avatar-picker {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
   margin: 6px 0 10px;
 }
 
 .avatar-preview-wrap {
-  width: 48px;
-  height: 48px;
+  padding: 0;
+  margin: 0;
+  width: 96px;
+  height: 96px;
   border-radius: 10px;
   overflow: hidden;
   border: 2px solid var(--accent);
@@ -342,14 +374,59 @@ export default {
   margin-bottom: 4px;
 }
 
+.avatar-dialog {
+  width: 420px;
+  max-width: calc(100vw - 64px);
+  max-height: calc(100dvh - 64px);
+  padding: 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 16px;
+  background: var(--bg-1);
+  color: var(--text);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.avatar-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.avatar-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.avatar-dialog-header h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.avatar-dialog-header button {
+  margin: 0;
+  padding: 4px 12px;
+  font-size: 1.4rem;
+}
+
 .avatar-thumb {
-  width: 44px;
-  height: 44px;
+  flex-shrink: 0;
+  padding: 0;
+  margin: 0;
+  width: 66px;
+  height: 66px;
   border-radius: 8px;
   object-fit: cover;
   border: 2px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
   transition: transform 0.1s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.avatar-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 6px;
 }
 
 .avatar-thumb:hover {
