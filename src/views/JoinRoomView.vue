@@ -33,6 +33,24 @@
         <input v-on:input="checkUserPsw" v-model="userPsw" type="text" placeholder="玩家密码" />
         <button v-on:click="generateRandomPsw">随机</button>
       </div>
+      <div class="subtitle avatar-title">选择头像</div>
+      <div class="avatar-picker">
+        <div class="avatar-preview-wrap">
+          <img class="avatar-preview" :src="avatarOfUser(selectedAvatar)" alt="avatar" />
+        </div>
+        <button class="btn-primary" v-on:click="randomizeAvatar">随机头像</button>
+      </div>
+      <div class="avatar-grid">
+        <img
+          v-for="file in AVATARS"
+          :key="file"
+          class="avatar-thumb"
+          :class="{ 'avatar-selected': file === selectedAvatar }"
+          :src="avatarOfUser(file)"
+          :title="file"
+          v-on:click="selectAvatar(file)"
+        />
+      </div>
       <ul class="tips">
         <li>
           不要使用你的常用密码，密码会被明文传输
@@ -53,7 +71,9 @@
   </div>
 </template>
 <script>
-import axios from "axios"
+import { get, post } from '@/api'
+import { errorMessage } from '@/gameConfig'
+import { AVATARS, getMyAvatar, setMyAvatar, randomAvatar, avatarUrl } from '@/avatar'
 export default {
   name: 'CreateRoomView',
   data () {
@@ -64,17 +84,23 @@ export default {
       validRoomId: 'sample',
       validUserId: 'sample',
       validUserPsw: 'sample',
+      AVATARS,
+      selectedAvatar: '',
       info: '',
-      //server: 'http://59.78.35.89:7999',
-    }
-  },
-  computed: {
-    server () {
-      return this.$store.state.server
     }
   },
   methods: {
-    joinRoom () {
+    randomizeAvatar () {
+      this.selectAvatar(randomAvatar())
+    },
+    selectAvatar (file) {
+      this.selectedAvatar = file
+      setMyAvatar(file)
+    },
+    avatarOfUser (file) {
+      return avatarUrl(file)
+    },
+    async joinRoom () {
       if (this.validRoomId === '') {
         this.info = '房间ID不能为空！'
         return
@@ -87,39 +113,31 @@ export default {
         this.info = '密码不能为空！'
       }
       this.info = '加入房间中...'
-      //将validRoomId和validRoomPsw发送到后端
-      //是否存在
-      //console.log(`${this.server}/create/${this.validRoomId}/${this.validRoomPsw}/`)
-      axios({
-        method: 'get',
-        url: `${this.server}/join/${this.validRoomId}/${this.validUserId}/${this.validUserPsw}/`,
-      })
-        .then((response) => {
-          let tReData = response.data
-          if (tReData != 'createdUser' && tReData != 'userExistAndValid') {
-            this.info = tReData
-            return
-          }
-          if (tReData === 'createdUser') {
-            this.info = '成功创建玩家，跳转中...'
-          }
-          if (tReData === 'userExistAndValid') {
-            this.info = '成功登录，跳转中...'
-          }
-          axios({
-            method: 'get',
-            url: `${this.server}/status/${this.validRoomId}/`,
-          })
-            .then((response) => {
-              let tReData = response.data
-              //console.log(tReData)
-              if (tReData === 'waiting') {
-                this.$router.push({ path: '/waitingroom' })
-              } else {
-                this.$router.push({ path: '/inroom' })
-              }
-            })
+      try {
+        const res = await post('/join_room/', {
+          roomid: this.validRoomId,
+          userid: this.validUserId,
+          userpsw: this.validUserPsw,
+          avatar: this.selectedAvatar
         })
+        if (!res.ok) {
+          this.info = errorMessage(res.message, '加入失败')
+          return
+        }
+        // Existing players keep the avatar chosen on their first join. The
+        // backend returns that authoritative filename on every successful join.
+        this.selectedAvatar = res.avatar || this.selectedAvatar
+        setMyAvatar(this.selectedAvatar)
+        this.info = res.created ? '成功创建玩家，跳转中...' : '成功登录，跳转中...'
+        const status = await get(`/room_status/${this.validRoomId}/`)
+        if (status.ok && status.status === 'waiting') {
+          this.$router.push({ path: '/waitingroom' })
+        } else {
+          this.$router.push({ path: '/inroom' })
+        }
+      } catch (e) {
+        this.info = '网络错误，请重试'
+      }
     },
     checkRoomId () {
       let flag = this.roomId.length <= 6;
@@ -281,6 +299,65 @@ export default {
       }
     }
     this.updateRoomInfo();
+    this.selectedAvatar = getMyAvatar();
   },
 }
 </script>
+<style scoped>
+.avatar-title {
+  margin-top: 14px;
+}
+
+.avatar-picker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 6px 0 10px;
+}
+
+.avatar-preview-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 2px solid var(--accent);
+  background: rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.avatar-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.avatar-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  padding: 4px;
+  margin-bottom: 4px;
+}
+
+.avatar-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: transform 0.1s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.avatar-thumb:hover {
+  transform: scale(1.08);
+}
+
+.avatar-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(224, 182, 76, 0.4);
+}
+</style>

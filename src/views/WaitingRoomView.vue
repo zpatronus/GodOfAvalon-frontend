@@ -27,7 +27,10 @@
       </div>
       <div class="subtitle">房间内的玩家</div>
       <div class="player-list">
-        <span v-for="user in users" :key="user.userId" class="player-chip">{{ user.userId }}</span>
+        <div v-for="user in users" :key="user.userId" class="player-card">
+          <img class="player-avatar" :src="avatarOf(user.userId)" :alt="user.userId" />
+          <span class="player-name">{{ user.userId }}</span>
+        </div>
       </div>
     </div>
     <div class="container">
@@ -42,7 +45,9 @@
   </div>
 </template>
 <script>
-import axios from "axios"
+import { post } from '@/api'
+import { boardTemplate, teamPhase, MIN_PLAYERS, MAX_PLAYERS, errorMessage } from '@/gameConfig'
+import { getMyAvatar, avatarUrl } from '@/avatar'
 export default {
   name: 'WaitingRoomView',
   data () {
@@ -51,6 +56,7 @@ export default {
       userId: '',
       userPsw: '',
       users: [],
+      avatars: {},
       userCount: 0,
       info: '',
       intervalId: null,
@@ -58,81 +64,54 @@ export default {
   },
   computed: {
     canStart: function () {
-      return this.userCount >= 5 && this.userCount <= 10;
+      return this.userCount >= MIN_PLAYERS && this.userCount <= MAX_PLAYERS;
     },
     template: function () {
-      if (this.userCount < 5) return '玩家数量不足'
-      if (this.userCount > 10) return '玩家数量过多，请重开房间'
-      let templates = [
-        '',
-        '',
-        '',
-        '',
-        '',
-        '🟦：梅林🧙‍♂️、派西维尔🛡️、亚瑟的忠臣🙌<br>🟧：莫甘娜😈、刺客🔪',
-        '🟦：梅林🧙‍♂️、派西维尔🛡️、2×亚瑟的忠臣🙌<br>🟧：莫甘娜😈、刺客🔪',
-        '🟦：梅林🧙‍♂️、派西维尔🛡️、2×亚瑟的忠臣🙌<br>🟧：莫甘娜😈、刺客🔪、奥伯伦👻',
-        '🟦：梅林🧙‍♂️、派西维尔🛡️、3×亚瑟的忠臣🙌<br>🟧：莫德雷德👹、莫甘娜😈、刺客🔪（建议使用湖中仙女）',
-        '🟦：梅林🧙‍♂️、派西维尔🛡️、4×亚瑟的忠臣🙌<br>🟧：莫德雷德👹、莫甘娜😈、刺客🔪<br>（建议使用湖中仙女）',
-        '🟦：梅林🧙‍♂️、派西维尔🛡️、4×亚瑟的忠臣🙌<br>🟧：莫德雷德👹、莫甘娜😈、刺客🔪、莫德雷德的爪牙💀<br>（建议使用湖中仙女）'
-      ];
-      // let templates = ['', '', '', '', '', 'Merlin, Percival, Morgana, Assassin, 1 Loyal Servant of Arther', 'Merlin, Percival, Morgana, Assassin, 2 Loyal Servants of Arther', 'Merlin, Percival, Morgana, Assassin, Oberon, 2 Loyal Servants of Arther', 'Merlin, Percival, Mordred, Morgana, Assassin, 3 Loyal Servants of Arther (Lady of the Lake is recommended)', 'Merlin, Percival, Mordred, Morgana, Assassin, 4 Loyal Servants of Arther  (Lady of the Lake is recommended)', 'Merlin, Percival, Mordred, Morgana, Assassin, 4 Loyal Servants of Arther, Minion of Mordred (Lady of the Lake is recommended)']
-      //                                    5                                                                 6                                                                  7                                                                            8                                                                                                                       9                                                                                                     10 
-      return templates[this.userCount]
+      return boardTemplate(this.userCount)
     },
     teamBuildingPhase: function () {
-      if (this.userCount < 5) return '玩家数量不足'
-      if (this.userCount > 10) return '玩家数量过多，请重开房间'
-      let teamBuildingPhases = [
-        '', '', '', '', '',
-        '2 3 2 3 3',
-        '2 3 4 3 4',
-        '2 3 3 4（保护轮）4',
-        '3 4 4 5（保护轮）5',
-        '3 4 4 5（保护轮）5',
-        '3 4 4 5（保护轮）5'
-      ];
-      // let teamBuildingPhases = ['', '', '', '', '', '2 3 2 3 3', '2 3 4 3 4', '2 3 3 4(Protected Quest) 4', '3 4 4 5(Protected Quest) 5', '3 4 4 5(Protected Quest) 5', '3 4 4 5(Protected Quest) 5']
-      return teamBuildingPhases[this.userCount]
-    },
-    server () {
-      return this.$store.state.server
-    },
+      return teamPhase(this.userCount)
+    }
   },
   methods: {
-    startGame () {
+    avatarOf (userId) {
+      const filename = this.avatars[userId] || (userId === this.userId ? getMyAvatar() : '')
+      return avatarUrl(filename)
+    },
+    async startGame () {
       if (!this.canStart) return
       this.info = '正在开启游戏...'
-      axios({
-        method: 'get',
-        url: `${this.server}/start/${this.roomId}/${this.userId}/${this.userPsw}/`
-      })
-        .then((response) => {
+      try {
+        const res = await post('/start_game/', {
+          roomid: this.roomId,
+          userid: this.userId,
+          userpsw: this.userPsw
+        })
+        if (!res.ok) { this.info = errorMessage(res.message, '开始失败'); return }
+        this.info = '游戏已开启，跳转中...'
+        this.$router.push({ path: '/inroom' })
+      } catch (e) {
+        this.info = '网络错误，请重试'
+      }
+    },
+    async updateRoomInfo () {
+      try {
+        const res = await post('/waiting_room/', {
+          roomid: this.roomId,
+          userid: this.userId,
+          userpsw: this.userPsw
+        })
+        if (!res.ok) return
+        this.userCount = res.users.length
+        this.avatars = res.avatars || {}
+        this.users = res.users.map(userId => ({ userId }))
+        if (res.roomstatus === 'started') {
           this.info = '游戏已开启，跳转中...'
           this.$router.push({ path: '/inroom' })
-        })
-    },
-    updateRoomInfo () {
-      axios({
-        method: 'get',
-        url: `${this.server}/wait/${this.roomId}/${this.userId}/${this.userPsw}/`,
-      })
-        .then((response) => {
-          //console.log(typeof (response.data))
-          //reponseParse = JSON.parse(response.data)
-          this.userCount = response.data['userCount']
-          this.users = []
-          for (let useri = 1; useri <= this.userCount; useri++) {
-            //this.users[useri] = response.data['user' + useri]
-            this.users.push({ 'userId': response.data['user' + useri] })
-          }
-          //console.log(this.users)
-
-          if (response.data['roomstatus'] == 'started') {
-            this.info = '游戏已开启，跳转中...'
-            this.$router.push({ path: '/inroom' })
-          }
-        })
+        }
+      } catch (e) {
+        /* polling; ignore transient errors */
+      }
     }
   },
   mounted: function () {
@@ -153,3 +132,42 @@ export default {
   },
 }
 </script>
+<style scoped>
+.player-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px 14px;
+  margin: 14px 0 8px;
+}
+
+.player-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  width: 92px;
+  min-width: 0;
+}
+
+.player-avatar {
+  width: 76px;
+  height: 76px;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+}
+
+.player-name {
+  width: 100%;
+  overflow: hidden;
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.2;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>

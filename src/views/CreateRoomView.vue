@@ -31,7 +31,8 @@
   </div>
 </template>
 <script>
-import axios from "axios"
+import { post } from '@/api'
+import { errorMessage } from '@/gameConfig'
 export default {
   name: 'CreateRoomView',
   data () {
@@ -41,37 +42,27 @@ export default {
       info: '',
     }
   },
-  computed: {
-    server () {
-      return this.$store.state.server
-    }
-  },
   methods: {
-    createRoom () {
+    async createRoom () {
       if (this.validRoomId === '') {
         this.info = '房间ID不能为空！'
         return
       }
       this.info = '创建房间中...'
-      //将validRoomId和validRoomPsw发送到后端
-      //是否存在
-      //console.log(`${this.server}/create/${this.validRoomId}/${this.validRoomPsw}/`)
-      axios({
-        method: 'get',
-        url: `${this.server}/create/${this.validRoomId}/`,
-      })
-        .then((response) => {
-          console.log(response.data)
-          if (response.data === 'createdRoom') {
-            this.updateRoomInfo()
-            this.info = '创建成功，跳转中...'
-            setTimeout(() => {
-              this.$router.push({ path: '/joinroom' })
-            }, 1000);
-          } else {
-            this.info = response.data
-          }
-        })
+      try {
+        const res = await post('/create_room/', { roomid: this.validRoomId })
+        if (!res.ok) {
+          this.info = errorMessage(res.message, '创建失败')
+          return
+        }
+        this.updateRoomInfo()
+        this.info = '创建成功，跳转中...'
+        setTimeout(() => {
+          this.$router.push({ path: '/joinroom' })
+        }, 1000)
+      } catch (e) {
+        this.info = '网络错误，请重试'
+      }
     },
     checkRoomId () {
       let flag = this.roomId.length <= 6;

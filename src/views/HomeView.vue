@@ -337,62 +337,15 @@
   </div>
 </template>
 <script>
-
-import axios from "axios"
-// import Vue from "vue"
-// import VueCookies from 'vue-cookies'
-// Vue.use(VueCookies)
-axios.defaults.withCredentials = true
+import { ensureToken } from '@/api'
 export default {
   name: 'HomeView',
-  components: {
-
-  },
   data () {
-    return {
-      token: ''
-    }
-  },
-  computed: {
-    server () {
-      return this.$store.state.server
-    }
-  },
-  methods: {
-    trypost () {
-
-      axios({
-        headers: {
-          'X-CSRFToken': this.token,
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true,
-        url: `${this.server}/test/`,
-        method: 'post',
-        data: {
-          'data1': 'data2',
-        }
-      })
-        .then((res) => {
-          console.log(res)
-        })
-    },
-
-    gettoken () {
-      axios({
-        method: 'get',
-        url: `${this.server}/get_csrf_token/`,
-        withCredentials: true
-      })
-        .then((res) => {
-          this.token = res.data.token
-          //console.log(this.token)
-        })
-    },
+    return {}
   },
   mounted: function () {
-    //get token
-    this.gettoken()
-  },
+    // warm the CSRF token for later POST calls
+    ensureToken().catch(() => {})
+  }
 }
 </script>
