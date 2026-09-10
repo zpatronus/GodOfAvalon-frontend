@@ -46,6 +46,13 @@
     <div class="container">
       <div class="subtitle">更新日志</div>
 
+      <p><strong>2026年9月10日：</strong></p>
+      <ol>
+        <li>前端视觉优化。</li>
+        <li>新增头像展示。</li>
+        <li>后端数据库 Schema 优化。</li>
+      </ol>
+
       <p><strong>2026年8月29日：</strong></p>
       <ol>
         <li>前端界面改版与视觉优化。</li>
