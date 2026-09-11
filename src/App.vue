@@ -100,6 +100,16 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Kill the default blue/translucent tap flash WebKit paints on touch */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  -webkit-touch-callout: none;
+}
+
 body {
   margin: 0;
   padding: 0;
