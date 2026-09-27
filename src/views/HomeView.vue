@@ -1,22 +1,3 @@
-<!--
- Copyright (C) 2022 Zijun Yang <zijun.yang@outlook.com>
- 
- This file is part of God of Avalon Frontend.
- 
- God of Avalon Frontend is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
- 
- God of Avalon Frontend is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with God of Avalon Frontend.  If not, see <http://www.gnu.org/licenses/>.
--->
-
 <template>
   <div>
     <!--
@@ -48,7 +29,7 @@
     <div class="container">
       <div class="subtitle">源代码许可证与友链</div>
       <p>源代码：<a href="https://github.com/zpatronus/GodOfAvalon-frontend">前端</a> · <a href="https://github.com/zpatronus/GodOfAvalon-backend">后端</a></p>
-      <p>许可证：<a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL v3 或更新版本</a></p>
+      <p>许可证：<a href="https://github.com/zpatronus/GodOfAvalon-frontend/blob/main/LICENSE">GNU AGPL v3</a></p>
       <p>友链：<a href="http://zjyang.dev/onw">一夜狼人杀</a></p>
     </div>
     <br>
