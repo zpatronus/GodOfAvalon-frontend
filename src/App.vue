@@ -29,6 +29,7 @@
     <nav class="nav">
       <router-link class="nav-link" to="/">主页</router-link>
       <router-link class="nav-link" to="/room">创建或加入房间</router-link>
+      <router-link class="nav-link" to="/gallery">画廊</router-link>
     </nav>
 
     <router-view :key="$route.fullPath" />

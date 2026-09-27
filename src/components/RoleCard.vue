@@ -4,18 +4,18 @@ import { ROLE_DISPLAY } from '@/gameConfig'
 import { localDateKey, roleVariant } from '@/roleVariant'
 import { cachedImage, cacheImage, forgetImage } from '@/imageCache'
 
-const props = defineProps({ role: String, eager: Boolean, roomid: String, userid: String })
+const props = defineProps({ role: String, eager: Boolean, roomid: String, userid: String, variant: Number })
 const date = ref(localDateKey())
 let dateTimer
 onMounted(() => {
-  if (!props.roomid || !props.userid) dateTimer = setInterval(() => { date.value = localDateKey() }, 60000)
+  if (!props.variant && (!props.roomid || !props.userid)) dateTimer = setInterval(() => { date.value = localDateKey() }, 60000)
 })
 onUnmounted(() => clearInterval(dateTimer))
 const images = require.context('@/assets/roles/', false, /\.webp$/)
 const failed = ref(false)
 const label = computed(() => ROLE_DISPLAY[props.role]?.name || '未知身份')
 const filename = computed(() => {
-  const version = roleVariant(props.role, { roomid: props.roomid, userid: props.userid, date: date.value })
+  const version = [1, 2, 3].includes(props.variant) ? props.variant : roleVariant(props.role, { roomid: props.roomid, userid: props.userid, date: date.value })
   return `${props.role}-${version}.webp`
 })
 const bundledSrc = computed(() => {

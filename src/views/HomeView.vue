@@ -45,6 +45,12 @@
       <a href="https://forms.gle/g6kHoRVJ7qCBM5598">Google Form</a>。
     </div>
     <RoleGuide />
+    <div class="container">
+      <div class="subtitle">源代码许可证与友链</div>
+      <p>源代码：<a href="https://github.com/zpatronus/GodOfAvalon-frontend">前端</a> · <a href="https://github.com/zpatronus/GodOfAvalon-backend">后端</a></p>
+      <p>许可证：<a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL v3 或更新版本</a></p>
+      <p>友链：<a href="http://zjyang.dev/onw">一夜狼人杀</a></p>
+    </div>
     <br>
     <div class="container">
       <div class="subtitle">更新日志</div>

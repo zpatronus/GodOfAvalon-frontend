@@ -24,6 +24,12 @@ import InRoomView from '../views/InRoomView.vue';
 
 const routes = [
   {
+    path: '/gallery',
+    name: 'gallery',
+    component: () => import('../views/GalleryView.vue'),
+    meta: { title: '画廊 · God of Avalon' }
+  },
+  {
     path: '/',
     name: 'home',
     component: HomeView,
