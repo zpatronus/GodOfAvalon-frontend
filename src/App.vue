@@ -28,11 +28,10 @@
 
     <nav class="nav">
       <router-link class="nav-link" to="/">主页</router-link>
-      <router-link class="nav-link" to="/createroom">创建房间</router-link>
-      <router-link class="nav-link" to="/joinroom">加入房间</router-link>
+      <router-link class="nav-link" to="/room">创建或加入房间</router-link>
     </nav>
 
-    <router-view />
+    <router-view :key="$route.fullPath" />
     <div class="visitor-count">
       Visitors: {{ visitorCount }}
     </div>
@@ -70,7 +69,7 @@ export default {
 :root {
   --bg-0: #0a0e14;
   --bg-1: #10151d;
-  --surface: rgba(19, 25, 34, 0.8);
+  --surface: rgba(19, 24, 25, 0.86);
   --surface-2: rgba(255, 255, 255, 0.045);
   --border: rgba(255, 255, 255, 0.09);
   --border-strong: rgba(255, 255, 255, 0.18);
@@ -114,13 +113,21 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background:
-    radial-gradient(ellipse 70% 42% at 50% -6%, rgba(229, 189, 84, 0.13), transparent 65%),
-    radial-gradient(ellipse 50% 38% at 90% 110%, rgba(69, 183, 245, 0.07), transparent 60%),
-    radial-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1.4px),
-    linear-gradient(165deg, #0a0e14 0%, #0f141c 45%, #0a0e14 100%);
-  background-attachment: fixed;
-  background-size: 100% 100%, 100% 100%, 26px 26px, 100% 100%;
+  background: var(--bg-0);
+  isolation: isolate;
+}
+
+/* Keep the square scene steady when mobile browser controls appear or hide. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  height: 100lvh;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(rgba(8, 12, 14, 0.25), rgba(8, 12, 14, 0.38)),
+    var(--avalon-background) center / cover no-repeat;
 }
 
 #app {
@@ -282,7 +289,7 @@ a {
 
 /* ---------- Form controls ---------- */
 
-input {
+input:not([type="checkbox"]):not([type="radio"]) {
   -webkit-appearance: none;
   appearance: none;
   background: rgba(10, 14, 20, 0.55);
@@ -299,13 +306,13 @@ input {
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 
-input:focus {
+input:not([type="checkbox"]):not([type="radio"]):focus {
   background: rgba(10, 14, 20, 0.75);
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(229, 189, 84, 0.2), inset 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
-input::placeholder {
+input:not([type="checkbox"]):not([type="radio"])::placeholder {
   color: var(--text-faint);
 }
 

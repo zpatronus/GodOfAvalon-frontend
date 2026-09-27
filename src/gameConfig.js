@@ -54,6 +54,16 @@ export function boardTemplate (count) {
   return BOARDS[count]
 }
 
+// Public role counts for the current player-count configuration.
+export function boardRoles (count) {
+  if (!Number.isInteger(count) || count < MIN_PLAYERS || count > MAX_PLAYERS) return []
+  const roles = { merlin: 1, percival: 1, loyal_servant: count <= 7 ? (count === 5 ? 1 : 2) : count === 8 ? 3 : 4, morgana: 1, assassin: 1 }
+  if (count === 7) roles.oberon = 1
+  if (count >= 8) roles.mordred = 1
+  if (count === 10) roles.minion = 1
+  return Object.entries(roles).map(([role, count]) => ({ role, count }))
+}
+
 export function teamPhase (count) {
   if (count < MIN_PLAYERS) return '玩家数量不足'
   if (count > MAX_PLAYERS) return '玩家数量过多，请重开房间'
@@ -63,6 +73,12 @@ export function teamPhase (count) {
 // The backend returns short english *error codes* (not display strings); the
 // wording lives here so it can be styled/localized without touching server code.
 export const ERROR_MESSAGES = {
+  bad_roomid: '房间号需为1–6位字母或数字',
+  bad_userid: '玩家名需为1–7位字母、数字或下划线',
+  bad_password: '玩家密码需为1–6位字母或数字',
+  bad_avatar: '请选择有效的头像',
+  not_waiting: '游戏已开始，无法更换头像',
+  room_full: '房间已满（最多10人）',
   bad_credentials: '玩家验证失败（或密码错误）',
   room_not_found: '房间不存在',
   roomid_empty: '房间ID不能为空',

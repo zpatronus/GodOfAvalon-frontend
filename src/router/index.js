@@ -18,8 +18,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import AboutView from '@/views/AboutView.vue';
 import HomeView from '../views/HomeView.vue';
-import CreateRoomView from '../views/CreateRoomView.vue';
-import JoinRoomView from '../views/JoinRoomView.vue';
+import RoomEntryView from '../views/RoomEntryView.vue';
 import WaitingRoomView from '../views/WaitingRoomView.vue';
 import InRoomView from '../views/InRoomView.vue';
 
@@ -43,7 +42,7 @@ const routes = [
   {
     path: '/createroom',
     name: 'createroom',
-    component: CreateRoomView,
+    redirect: to => ({ path: '/room', query: to.query }),
     meta: {
       title: 'God of Avalon'
     }
@@ -51,10 +50,16 @@ const routes = [
   {
     path: '/joinroom',
     name: 'joinroom',
-    component: JoinRoomView,
+    redirect: to => ({ path: '/room', query: to.query }),
     meta: {
       title: 'God of Avalon'
     }
+  },
+  {
+    path: '/room',
+    name: 'room',
+    component: RoomEntryView,
+    meta: { title: 'God of Avalon' }
   },
   {
     path: '/waitingroom',

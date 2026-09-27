@@ -29,22 +29,32 @@
             href="https://goa-zijuny-dev.translate.goog/?_x_tr_sl=zh-CN&_x_tr_tl=en&_x_tr_hl=en&_x_tr_pto=wapp">Google
             Translate</a>.</p>
       <div class="subtitle">--help</div>
-      要使用此网站玩《阿瓦隆：抵抗组织》，首先需要创建一个房间。
+      使用此网站玩《阿瓦隆：抵抗组织》，请先前往“创建或加入房间”。
       <br><br>
-      <b>创建房间：</b>
-      如果你还没有创建房间，请前往“创建房间”选项卡，在那里你需要选择房间ID。
+      <b>创建或加入：</b>
+      输入房间号、玩家名和玩家密码即可进入。房间不存在时自动创建，其他玩家输入相同房间号即可加入。
       <br><br>
-      <b>创建玩家/加入房间：</b>
-      如果房间已经创建，请前往“加入房间”选项卡，在那里你需要选择玩家ID并设置密码。如果该房间中尚未创建此玩家ID，将会初始化一个新玩家。
+      <b>重新加入与下一局：</b>
+      使用原来的玩家名和密码即可回到对局。等待室可更换头像；本局结束后，在对局页面确认进入下一局，所有玩家会前往同一个下一房间。
+      <br><br>
+      <router-link to="/room">创建或加入房间 →</router-link>
       <hr>
       <b>反馈：</b>如果你找到了bug，或者有任何想法，欢迎到这个项目的github repo新增issue（<a
         href="https://github.com/zpatronus/GodOfAvalon-frontend">前端</a>，<a
         href="https://github.com/zpatronus/GodOfAvalon-backend">后端</a>）；如果你不熟悉github，或者只是想留个言，也可以填写
       <a href="https://forms.gle/g6kHoRVJ7qCBM5598">Google Form</a>。
     </div>
+    <RoleGuide />
     <br>
     <div class="container">
       <div class="subtitle">更新日志</div>
+
+      <p><strong>2026年9月27日：</strong></p>
+      <ol>
+        <li>合并创建与加入房间，新增下一局快捷入口。</li>
+        <li>等待房间支持更换头像。</li>
+        <li>新增背景与角色卡，优化板子展示及图片缓存。</li>
+      </ol>
 
       <p><strong>2026年9月10日：</strong></p>
       <ol>
@@ -345,8 +355,10 @@
 </template>
 <script>
 import { ensureToken } from '@/api'
+import RoleGuide from '@/components/RoleGuide.vue'
 export default {
   name: 'HomeView',
+  components: { RoleGuide },
   data () {
     return {}
   },

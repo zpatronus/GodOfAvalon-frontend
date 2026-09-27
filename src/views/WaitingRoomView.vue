@@ -32,10 +32,12 @@
           <span class="player-name">{{ user.userId }}</span>
         </div>
       </div>
+      <AvatarField v-if="roomStatus === 'waiting'" :model-value="avatars[userId]" :persist="false"
+        :disabled="avatarSaving || starting" @update:model-value="saveAvatar" />
     </div>
     <div class="container">
       <div class="subtitle">板子</div>
-      <div class="board" v-html="template"></div>
+      <BoardRoles :count="userCount" :room-id="roomId" :user-id="userId" />
       <div class="subtitle">任务队伍成员数量</div>
       <div class="phase-text">{{ teamBuildingPhase }}</div>
     </div>
@@ -55,10 +57,13 @@
 <script>
 import { post } from '@/api'
 import { sortPlayers } from '@/playerOrder'
-import { boardTemplate, teamPhase, MIN_PLAYERS, MAX_PLAYERS, errorMessage } from '@/gameConfig'
+import { teamPhase, MIN_PLAYERS, MAX_PLAYERS, errorMessage } from '@/gameConfig'
 import { getMyAvatar, avatarUrl } from '@/avatar'
+import AvatarField from '@/components/AvatarField.vue'
+import BoardRoles from '@/components/BoardRoles.vue'
 export default {
   name: 'WaitingRoomView',
+  components: { AvatarField, BoardRoles },
   data () {
     return {
       roomId: '',
@@ -66,6 +71,11 @@ export default {
       userPsw: '',
       users: [],
       avatars: {},
+      avatarSaving: false,
+      roomStatus: '',
+      revision: 0,
+      polling: false,
+      active: true,
       userCount: 0,
       startConfirmation: false,
       starting: false,
@@ -75,16 +85,31 @@ export default {
   },
   computed: {
     canStart: function () {
-      return this.userCount >= MIN_PLAYERS && this.userCount <= MAX_PLAYERS;
-    },
-    template: function () {
-      return boardTemplate(this.userCount)
+      return this.roomStatus === 'waiting' && !this.avatarSaving && this.userCount >= MIN_PLAYERS && this.userCount <= MAX_PLAYERS;
     },
     teamBuildingPhase: function () {
       return teamPhase(this.userCount)
     }
   },
   methods: {
+    async saveAvatar (avatar) {
+      if (this.avatarSaving || this.starting || this.roomStatus !== 'waiting') return
+      this.avatarSaving = true
+      this.revision++
+      this.info = ''
+      try {
+        const res = await post('/set_avatar/', { roomid: this.roomId, userid: this.userId, userpsw: this.userPsw, avatar })
+        if (!this.active) return
+        if (!res.ok) { this.info = errorMessage(res.message, '头像保存失败'); return }
+        this.avatars = res.avatars
+      } catch {
+        if (this.active) this.info = '网络错误，头像未更改，请重试'
+      } finally {
+        this.revision++
+        this.avatarSaving = false
+        if (this.active) this.updateRoomInfo()
+      }
+    },
     openStartConfirmation () {
       if (!this.canStart || this.starting) return
       this.startConfirmation = true
@@ -101,6 +126,7 @@ export default {
     async startGame () {
       if (!this.canStart || !this.startConfirmation || this.starting) return
       this.starting = true
+      this.revision++
       this.closeStartConfirmation()
       this.info = '正在开启游戏...'
       try {
@@ -109,6 +135,7 @@ export default {
           userid: this.userId,
           userpsw: this.userPsw
         })
+        if (!this.active) return
         if (!res.ok) { this.info = errorMessage(res.message, '开始失败'); return }
         this.info = '游戏已开启，跳转中...'
         this.$router.push({ path: '/inroom' })
@@ -120,13 +147,17 @@ export default {
       }
     },
     async updateRoomInfo () {
+      if (!this.active || this.polling || this.avatarSaving || this.starting) return
+      this.polling = true
+      const revision = this.revision
       try {
         const res = await post('/waiting_room/', {
           roomid: this.roomId,
           userid: this.userId,
           userpsw: this.userPsw
         })
-        if (!res.ok) return
+        if (!this.active || revision !== this.revision || !res.ok) return
+        this.roomStatus = res.roomstatus
         if (this.userCount !== res.users.length) this.closeStartConfirmation()
         this.userCount = res.users.length
         this.avatars = res.avatars || {}
@@ -137,6 +168,8 @@ export default {
         }
       } catch (e) {
         /* polling; ignore transient errors */
+      } finally {
+        this.polling = false
       }
     }
   },
@@ -148,9 +181,9 @@ export default {
     this.intervalId = setInterval(() => {//update room info
       this.updateRoomInfo()
     }, 2000)
-    this.updateRoomInfo()
   },
   beforeUnmount () {
+    this.active = false
     // console.log(this.intervalId)
     if (this.intervalId) {
       clearInterval(this.intervalId);

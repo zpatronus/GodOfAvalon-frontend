@@ -26,8 +26,10 @@
         <div class="info-row"><span class="info-label">你的玩家ID</span><span class="info-value">{{ userId }}</span></div>
         <div class="info-row"><span class="info-label">玩家数量</span><span class="info-value">{{ userCount }}</span></div>
       </div>
-      <div class="subtitle">板子</div>
-      <div class="board" v-html="template"></div>
+      <details class="discussion-board">
+        <summary>本局身份牌 <span>查看配置</span></summary>
+        <BoardRoles :count="userCount" :room-id="roomId" :user-id="userId" />
+      </details>
     </div>
 
     <div class="container role-card">
@@ -37,7 +39,7 @@
           <span>{{ summaryText }}</span>
           <span class="role-summary-star">✦</span>
         </summary>
-        <div class="role-name">{{ chineseRoleName }}</div>
+        <RoleCard v-if="roleRevealed && userRole" :role="userRole" :roomid="roomId" :userid="userId" eager />
         <div v-if="roleUserSee" class="subtitle">{{ roleUserSee }}</div>
         <div class="role-see">
           <div v-for="u in usersUserSee" :key="u.userId" class="see-player">
@@ -166,20 +168,25 @@
     <div class="status">{{ info }}</div>
 
 
-    <div style="margin-bottom:100px"></div>
+    <NextGame :room-id="roomId" :user-id="userId" :user-psw="userPsw" />
   </div>
 </template>
 <script>
 import { post } from '@/api'
-import { ROLE_DISPLAY, boardTemplate, teamPhase, canReject, renderVote, errorMessage } from '@/gameConfig'
+import { ROLE_DISPLAY, teamPhase, canReject, renderVote, errorMessage } from '@/gameConfig'
+import BoardRoles from '@/components/BoardRoles.vue'
 import { getMyAvatar, avatarUrl } from '@/avatar'
 import { sortPlayers } from '@/playerOrder'
+import RoleCard from '@/components/RoleCard.vue'
+import NextGame from '@/components/NextGame.vue'
 export default {
   name: 'InRoomView',
+  components: { RoleCard, NextGame, BoardRoles },
   data () {
     return {
       emojis: ['🟦', '🧙‍♂️', '🛡️', '🔪', '😈', '🟧',],
       summaryText: '点击查看角色',
+      roleRevealed: false,
       roomId: '',
       userId: '',
       userPsw: '',
@@ -208,9 +215,6 @@ export default {
     },
     sortedSelectedUsers () {
       return sortPlayers(this.selectedUsers, this.roomId)
-    },
-    template: function () {
-      return boardTemplate(this.userCount)
     },
     teamBuildingPhase: function () {
       return teamPhase(this.userCount)
@@ -251,6 +255,7 @@ export default {
       event.target.classList.toggle('grayscale');
     },
     toggleDetails () {
+      this.roleRevealed = this.$refs.details.open
       this.summaryText = this.$refs.details.open ? '点击隐藏角色' : '点击查看角色'
     },
     getBackgroundStyle (message) {
@@ -396,6 +401,9 @@ export default {
 }
 </script>
 <style>
+.discussion-board { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); }
+.discussion-board summary { cursor: pointer; color: var(--text-dim); font-size: 0.78rem; }
+.discussion-board summary > span { float: right; font-size: 0.7rem; color: var(--accent); }
 /* Note-taking: toggling the grayscale class marks a role as "dead" for yourself */
 .grayscale {
   filter: grayscale(100%);
