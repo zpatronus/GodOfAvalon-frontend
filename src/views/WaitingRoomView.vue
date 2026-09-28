@@ -3,6 +3,9 @@
     <div class="container">
       <div class="info-grid">
         <div class="info-row"><span class="info-label">房间ID</span><span class="info-value">{{ roomId }}</span></div>
+        <button id="copyInviteButton" class="btn-primary invite-button" type="button" @click="copyInvite">
+          {{ inviteCopied ? '已复制' : '复制邀请链接' }}
+        </button>
         <div class="info-row"><span class="info-label">你的玩家ID</span><span class="info-value">{{ userId }}</span></div>
         <div class="info-row"><span class="info-label">玩家数量</span><span class="info-value">{{ userCount }}</span></div>
       </div>
@@ -61,6 +64,7 @@ export default {
       startConfirmation: false,
       starting: false,
       info: '',
+      inviteCopied: false,
       intervalId: null,
     }
   },
@@ -103,6 +107,25 @@ export default {
     avatarOf (userId) {
       const filename = this.avatars[userId] || (userId === this.userId ? getMyAvatar() : '')
       return avatarUrl(filename)
+    },
+    async copyInvite () {
+      const invitePath = this.$router.resolve({ name: 'room', query: { room: this.roomId } }).href
+      const url = `${window.location.origin}${invitePath}`
+      try {
+        await navigator.clipboard.writeText(url)
+      } catch {
+        const textarea = document.createElement('textarea')
+        textarea.value = url
+        textarea.setAttribute('readonly', '')
+        textarea.style.position = 'fixed'
+        textarea.style.opacity = '0'
+        document.body.appendChild(textarea)
+        textarea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textarea)
+      }
+      this.inviteCopied = true
+      setTimeout(() => { this.inviteCopied = false }, 2000)
     },
     async startGame () {
       if (!this.canStart || !this.startConfirmation || this.starting) return
@@ -253,5 +276,10 @@ export default {
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.invite-button {
+  align-self: flex-start;
+  margin: 0 0 4px;
 }
 </style>
