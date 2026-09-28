@@ -2,10 +2,12 @@
   <div>
     <div class="container">
       <div class="info-grid">
-        <div class="info-row"><span class="info-label">房间ID</span><span class="info-value">{{ roomId }}</span></div>
-        <button id="copyInviteButton" class="btn-primary invite-button" type="button" @click="copyInvite">
-          {{ inviteCopied ? '已复制' : '复制邀请链接' }}
-        </button>
+        <div class="info-row room-invite-row">
+          <div class="room-id"><span class="info-label">房间ID</span><span class="info-value">{{ roomId }}</span></div>
+          <button id="copyInviteButton" class="invite-button" type="button" @click="copyInvite">
+            {{ inviteCopied ? '已复制' : '邀请好友' }}
+          </button>
+        </div>
         <div class="info-row"><span class="info-label">你的玩家ID</span><span class="info-value">{{ userId }}</span></div>
         <div class="info-row"><span class="info-label">玩家数量</span><span class="info-value">{{ userCount }}</span></div>
       </div>
@@ -279,7 +281,24 @@ export default {
 }
 
 .invite-button {
-  align-self: flex-start;
-  margin: 0 0 4px;
+  margin: 0;
+  padding: 8px 12px;
+  color: var(--accent);
+  background: rgba(229, 189, 84, 0.08);
+  border: 1px solid rgba(229, 189, 84, 0.35);
+  border-radius: 9px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.invite-button:hover {
+  background: rgba(229, 189, 84, 0.15);
+  border-color: rgba(229, 189, 84, 0.55);
+}
+
+.room-id {
+  display: flex;
+  gap: 12px;
+  align-items: center;
 }
 </style>
