@@ -90,11 +90,25 @@
           </div>
         </div>
       </div>
-      <div class="vote-buttons">
+      <div
+        v-if="voteWaitingStatus"
+        class="vote-waiting"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="vote-animation" aria-hidden="true">
+          <span class="vote-animation-sparkle">✦</span>
+          <span class="vote-animation-paper">✓</span>
+          <span class="vote-animation-box">▰</span>
+        </span>
+        <span>{{ voteWaitingStatus }}</span>
+        <span class="vote-waiting-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      </div>
+      <div v-if="canCurrentPlayerVote && !roomState.voted" class="vote-buttons">
         <button class="vote-btn" :class="{ 'vote-selected': userChoice === 'yes' }" v-on:click="chooseYes">✔️</button>
         <button id="nobutton" class="vote-btn" :disabled="noButtonDisabled" :class="{ 'vote-selected': userChoice === 'no' }" v-on:click="chooseNo">❌</button>
       </div>
-      <div v-show="choiceMade" class="vote-confirm">
+      <div v-if="canCurrentPlayerVote && !roomState.voted" v-show="choiceMade" class="vote-confirm">
         <div class="choice-info">你的选择：<span class="choice-pill">{{ userChoiceEmoji }}</span></div>
         <button class="btn-primary btn-block" v-on:click="confirmChoice">确认投票</button>
       </div>
@@ -213,6 +227,15 @@ export default {
       if (this.roomState.phase === 'build') return `队伍提名 #${this.roomState.build_round}`
       if (this.roomState.phase === 'quest') return `任务 #${this.roomState.quest_round}`
       return ''
+    },
+    voteWaitingStatus () {
+      if (!['build', 'quest'].includes(this.roomState.phase)) return ''
+      if (this.roomState.voted) return '投票已提交，等待其他玩家投票'
+      if (this.roomState.phase === 'quest' && !this.roomState.on_vote) return '本轮无需投票，等待其他玩家投票'
+      return ''
+    },
+    canCurrentPlayerVote () {
+      return this.roomState.phase === 'build' || (this.roomState.phase === 'quest' && this.roomState.on_vote)
     },
   },
   methods: {
@@ -352,10 +375,10 @@ export default {
           this.showbuildcontainer = false
           this.selectedUsers = [this.userId]
           this.preQuestDone = false
-          this.showvotecontainer = !re.voted
+          this.showvotecontainer = true
         } else if (re.phase === 'quest') {
           this.showbuildcontainer = false
-          this.showvotecontainer = re.on_vote && !re.voted
+          this.showvotecontainer = true
         }
         this.noButtonDisabled = !canReject(this.userRole, re.phase)
       } catch (e) { /* polling */ }
@@ -588,6 +611,124 @@ export default {
   border-color: var(--accent);
   background: rgba(224, 182, 76, 0.18);
   box-shadow: 0 0 0 3px rgba(224, 182, 76, 0.25);
+}
+
+.vote-waiting {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin: 14px 0 4px;
+  padding: 11px 14px;
+  border: 1px solid rgba(224, 182, 76, 0.28);
+  border-radius: 12px;
+  background: rgba(224, 182, 76, 0.07);
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  animation: voteFadeIn 0.25s ease;
+}
+
+.vote-animation {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 36px;
+  flex: 0 0 38px;
+}
+
+.vote-animation-paper {
+  position: absolute;
+  z-index: 1;
+  left: 10px;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 17px;
+  height: 21px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 3px;
+  background: #fff4cc;
+  color: #427a55;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  animation: ballotDrop 1.8s ease-in-out infinite;
+}
+
+.vote-animation-box {
+  position: absolute;
+  left: 4px;
+  bottom: 0;
+  width: 30px;
+  height: 17px;
+  overflow: hidden;
+  border: 2px solid var(--accent);
+  border-top-width: 3px;
+  border-radius: 4px 4px 7px 7px;
+  background: rgba(224, 182, 76, 0.2);
+  color: transparent;
+}
+
+.vote-animation-box::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: -3px;
+  width: 12px;
+  height: 2px;
+  background: var(--accent);
+}
+
+.vote-animation-sparkle {
+  position: absolute;
+  right: 1px;
+  top: 3px;
+  color: #ffe28b;
+  font-size: 12px;
+  animation: sparkle 1.2s ease-in-out infinite;
+}
+
+.vote-waiting-dots {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 3px;
+  align-self: center;
+  margin-left: 1px;
+}
+
+.vote-waiting-dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: voteWaitingPulse 1.1s ease-in-out infinite;
+}
+
+.vote-waiting-dots i:nth-child(2) { animation-delay: 0.15s; }
+.vote-waiting-dots i:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes voteWaitingPulse {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+
+@keyframes ballotDrop {
+  0%, 15% { transform: translate(0, -7px) rotate(-12deg); opacity: 0; }
+  28% { opacity: 1; }
+  55% { transform: translate(1px, 10px) rotate(8deg); opacity: 1; }
+  68%, 100% { transform: translate(1px, 14px) rotate(8deg); opacity: 0; }
+}
+
+@keyframes sparkle {
+  0%, 100% { transform: scale(0.65) rotate(0); opacity: 0.35; }
+  50% { transform: scale(1.15) rotate(25deg); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vote-waiting,
+  .vote-animation-paper,
+  .vote-animation-sparkle,
+  .vote-waiting-dots i { animation: none; }
 }
 
 .vote-confirm {
