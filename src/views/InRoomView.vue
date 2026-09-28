@@ -809,6 +809,8 @@ export default {
 
 .history-bottomline {
   align-items: flex-start;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .history-team {
@@ -864,20 +866,44 @@ export default {
 }
 
 .history-votes {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding-top: 2px;
-  text-align: right;
-  max-width: 100%;
-  overflow-wrap: anywhere;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+  width: 100%;
+  min-width: 0;
 }
 
 .history-votes > span {
   min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.history-votes .vote-sep {
+  display: none;
+}
+
+.history-quest .history-votes {
+  display: flex;
+  align-items: center;
+  width: auto;
+  gap: 8px;
+}
+
+.history-quest .history-votes .vote-sep {
+  display: inline;
+}
+
+.history-quest .history-votes > span {
+  white-space: nowrap;
+}
+
+.history-votes > .green,
+.history-votes > .red {
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 @media (max-width: 600px) {
@@ -885,15 +911,6 @@ export default {
     flex-wrap: wrap;
   }
 
-  .history-bottomline {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 6px;
-  }
-
-  .history-votes {
-    align-self: flex-end;
-  }
 }
 
 .vote-sep {
